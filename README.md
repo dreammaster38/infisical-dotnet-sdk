@@ -57,6 +57,7 @@ Besides secrets and PKI subscribers, the SDK covers the following areas of the I
 | `Alerts()` | alerts with channels (CRUD, test channel) |
 | `KmipServers()` | KMIP servers: CRUD, revoke, generate enrollment token |
 | `Signers()` | code signing: signers (CRUD, enable / disable), sign, public key, certificate (get / reissue / import), approval policy, signing requests, operations |
+| `ProxiedServices()` | proxied services: create, list, get (by id / name), update, delete, report usage |
 | `GatewayPools()` | gateway pools: CRUD, add / remove gateways, resources |
 | `PkiDiscovery()` | certificate discovery jobs (network, Linux and Windows servers): CRUD, scans, scan history, and found installations |
 | `Gateways()` | gateways: create, get, update, revoke, generate enrollment token |

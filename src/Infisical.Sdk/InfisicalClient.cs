@@ -41,6 +41,7 @@ namespace Infisical.Sdk
     private AgentVaultClient _agentVault;
     private GatewayPoolsClient _gatewayPools;
     private PkiDiscoveryClient _pkiDiscovery;
+    private ProxiedServicesClient _proxiedServices;
     private RawClient _raw;
     public InfisicalClient(InfisicalSdkSettings settings)
     {
@@ -78,6 +79,7 @@ namespace Infisical.Sdk
       _agentVault = new AgentVaultClient(_apiClient);
       _gatewayPools = new GatewayPoolsClient(_apiClient);
       _pkiDiscovery = new PkiDiscoveryClient(_apiClient);
+      _proxiedServices = new ProxiedServicesClient(_apiClient);
       _raw = new RawClient(_apiClient);
     }
 
@@ -280,6 +282,12 @@ namespace Infisical.Sdk
     public PkiDiscoveryClient PkiDiscovery()
     {
       return _pkiDiscovery;
+    }
+
+    /// <summary>Hosts whose requests are rewritten with credentials from secrets.</summary>
+    public ProxiedServicesClient ProxiedServices()
+    {
+      return _proxiedServices;
     }
   }
 }
