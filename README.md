@@ -50,6 +50,10 @@ Besides secrets and PKI subscribers, the SDK covers the following areas of the I
 | `Kms()` | KMS keys (CRUD, rotate), encrypt / decrypt, sign / verify, public key |
 | `SharedSecrets()` | create, list, get, access, delete |
 | `ProjectAccess()` | project roles, project memberships of users, machine identities and groups |
+| `SecretSyncs()` | secret syncs for all destinations (`SecretSyncDestinations.*`): list, get, create, update, delete, sync / import / remove secrets, check destination |
+| `Certificates()` | issue, get, bundle / private key, PKCS#12, search, renew, revoke, import, certificate requests |
+| `CertificateProfiles()` / `CertificatePolicies()` | CRUD for certificate profiles and policies |
+| `CertificateAuthorities()` | internal CAs: CRUD, CSR, renew, sign intermediate, CRLs, auto-renewal, signing config |
 | `Pki()` | PKI subscribers |
 | `Raw()` | any other endpoint (app connections, secret syncs, rotations, audit logs, ...) |
 
@@ -71,6 +75,27 @@ await client.Secrets().BatchCreateAsync(new BatchCreateSecretsOptions
     new BatchSecretInput { SecretKey = "API_KEY", SecretValue = "abc" },
   }
 });
+
+// sync the secrets of a folder to AWS Parameter Store
+await client.SecretSyncs().CreateAsync(new CreateSecretSyncOptions
+{
+  Destination = SecretSyncDestinations.AWSParameterStore,
+  Name = "my-app-sync",
+  ProjectId = project.Id,
+  ConnectionId = awsConnectionId,
+  EnvironmentSlug = "dev",
+  SecretPath = "/backend",
+  SyncOptions = new SecretSyncOptions { InitialSyncBehavior = SecretSyncInitialSyncBehaviors.OverwriteDestination },
+  DestinationConfig = new() { ["region"] = "eu-central-1", ["path"] = "/my-app/" }
+});
+
+// request a certificate from a certificate profile
+var cert = await client.Certificates().IssueAsync(new IssueCertificateRequest
+{
+  ProfileId = profileId,
+  Attributes = new CertificateAttributes { CommonName = "service.example.com", Ttl = "90d" }
+});
+Console.WriteLine(cert.Material?.Certificate);
 
 // endpoints without a typed client
 var auditLogs = await client.Raw().GetAsync("/api/v1/organization/audit-logs", new Dictionary<string, string> { ["limit"] = "20" });

@@ -22,6 +22,11 @@ namespace Infisical.Sdk
     private KmsClient _kms;
     private SharedSecretsClient _sharedSecrets;
     private ProjectAccessClient _projectAccess;
+    private SecretSyncsClient _secretSyncs;
+    private CertificatesClient _certificates;
+    private CertificateProfilesClient _certificateProfiles;
+    private CertificatePoliciesClient _certificatePolicies;
+    private CertificateAuthoritiesClient _certificateAuthorities;
     private RawClient _raw;
     public InfisicalClient(InfisicalSdkSettings settings)
     {
@@ -40,6 +45,11 @@ namespace Infisical.Sdk
       _kms = new KmsClient(_apiClient);
       _sharedSecrets = new SharedSecretsClient(_apiClient);
       _projectAccess = new ProjectAccessClient(_apiClient);
+      _secretSyncs = new SecretSyncsClient(_apiClient);
+      _certificates = new CertificatesClient(_apiClient);
+      _certificateProfiles = new CertificateProfilesClient(_apiClient);
+      _certificatePolicies = new CertificatePoliciesClient(_apiClient);
+      _certificateAuthorities = new CertificateAuthoritiesClient(_apiClient);
       _raw = new RawClient(_apiClient);
     }
 
@@ -128,6 +138,36 @@ namespace Infisical.Sdk
     public RawClient Raw()
     {
       return _raw;
+    }
+
+    /// <summary>Sync secrets to external destinations (AWS, GitHub, Vercel, ...).</summary>
+    public SecretSyncsClient SecretSyncs()
+    {
+      return _secretSyncs;
+    }
+
+    /// <summary>Issue, renew, revoke and export certificates.</summary>
+    public CertificatesClient Certificates()
+    {
+      return _certificates;
+    }
+
+    /// <summary>Certificate profiles (enrollment configuration).</summary>
+    public CertificateProfilesClient CertificateProfiles()
+    {
+      return _certificateProfiles;
+    }
+
+    /// <summary>Certificate policies.</summary>
+    public CertificatePoliciesClient CertificatePolicies()
+    {
+      return _certificatePolicies;
+    }
+
+    /// <summary>Internal certificate authorities.</summary>
+    public CertificateAuthoritiesClient CertificateAuthorities()
+    {
+      return _certificateAuthorities;
     }
   }
 }
