@@ -39,6 +39,8 @@ namespace Infisical.Sdk
     private SecretScanningClient _secretScanning;
     private SecretValidationRulesClient _secretValidationRules;
     private AgentVaultClient _agentVault;
+    private GatewayPoolsClient _gatewayPools;
+    private PkiDiscoveryClient _pkiDiscovery;
     private RawClient _raw;
     public InfisicalClient(InfisicalSdkSettings settings)
     {
@@ -74,6 +76,8 @@ namespace Infisical.Sdk
       _secretScanning = new SecretScanningClient(_apiClient);
       _secretValidationRules = new SecretValidationRulesClient(_apiClient);
       _agentVault = new AgentVaultClient(_apiClient);
+      _gatewayPools = new GatewayPoolsClient(_apiClient);
+      _pkiDiscovery = new PkiDiscoveryClient(_apiClient);
       _raw = new RawClient(_apiClient);
     }
 
@@ -264,6 +268,18 @@ namespace Infisical.Sdk
     public AgentVaultClient AgentVault()
     {
       return _agentVault;
+    }
+
+    /// <summary>Gateway pools (groups of gateways).</summary>
+    public GatewayPoolsClient GatewayPools()
+    {
+      return _gatewayPools;
+    }
+
+    /// <summary>Certificate discovery jobs, scans and installations.</summary>
+    public PkiDiscoveryClient PkiDiscovery()
+    {
+      return _pkiDiscovery;
     }
   }
 }
