@@ -31,6 +31,53 @@ If you’re working with .NET, the official Infisical .NET SDK package is the ea
 ## Documentation
 You can find the documentation for the .NET SDK on our [SDK documentation page](https://infisical.com/docs/sdks/languages/dotnet).
 
+## Supported APIs
+
+Besides secrets and PKI subscribers, the SDK covers the following areas of the Infisical API. All clients are reachable from `InfisicalClient`:
+
+| Accessor | Covers |
+| --- | --- |
+| `Auth()` | Logins: Universal, LDAP, AWS, Azure, GCP, Kubernetes, OIDC, JWT, OCI, Alibaba Cloud, TLS certificate; token renew / revoke |
+| `Secrets()` | list / get / create / update / delete, **batch create / update / delete, move, duplicate** |
+| `Projects()` | create, list, get (by id / slug), update, delete |
+| `Environments()` | create, get by slug, update, delete, restore |
+| `Folders()` | create, list, get, update, delete |
+| `SecretImports()` | create, list, get, update, delete, replication resync |
+| `SecretTags()` | create, list, get (by id / slug), update, delete |
+| `Identities()` | machine identities (CRUD, search) and `Identities().Auth()` to attach / update / remove every auth method, manage Universal Auth client secrets and Token Auth tokens |
+| `DynamicSecrets()` | dynamic secrets (CRUD) and leases (create, get, list, renew, revoke) |
+| `Groups()` | groups (CRUD), users and machine identities of a group |
+| `Kms()` | KMS keys (CRUD, rotate), encrypt / decrypt, sign / verify, public key |
+| `SharedSecrets()` | create, list, get, access, delete |
+| `ProjectAccess()` | project roles, project memberships of users, machine identities and groups |
+| `Pki()` | PKI subscribers |
+| `Raw()` | any other endpoint (app connections, secret syncs, rotations, audit logs, ...) |
+
+```csharp
+var client = new InfisicalClient(new InfisicalSdkSettingsBuilder().WithHostUri("https://app.infisical.com").Build());
+await client.Auth().UniversalAuth().LoginAsync(clientId, clientSecret);
+
+var project = await client.Projects().CreateAsync(new CreateProjectOptions { ProjectName = "My project" });
+await client.Folders().CreateAsync(new CreateFolderOptions { ProjectId = project.Id, EnvironmentSlug = "dev", Name = "backend" });
+
+await client.Secrets().BatchCreateAsync(new BatchCreateSecretsOptions
+{
+  ProjectId = project.Id,
+  EnvironmentSlug = "dev",
+  SecretPath = "/backend",
+  Secrets = new[]
+  {
+    new BatchSecretInput { SecretKey = "DB_URL", SecretValue = "postgres://..." },
+    new BatchSecretInput { SecretKey = "API_KEY", SecretValue = "abc" },
+  }
+});
+
+// endpoints without a typed client
+var auditLogs = await client.Raw().GetAsync("/api/v1/organization/audit-logs", new Dictionary<string, string> { ["limit"] = "20" });
+```
+
+Response models expose the most important fields as properties; everything else the API returns is available through `AdditionalData`.
+
 ## Security
 
 Please do not file GitHub issues or post on our public forum for security vulnerabilities, as they are public!

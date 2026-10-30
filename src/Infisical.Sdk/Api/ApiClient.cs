@@ -308,6 +308,93 @@ namespace Infisical.Sdk.Api
       }
     }
 
+    private static readonly JsonSerializerOptions ReadOptions = new JsonSerializerOptions
+    {
+      PropertyNameCaseInsensitive = true
+    };
+
+    private static readonly JsonSerializerOptions WriteOptions = new JsonSerializerOptions
+    {
+      DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
+
+    /// <summary>
+    /// Generic request used by the typed clients. Null properties are omitted from the request body.
+    /// An empty response body is tolerated and results in <c>default</c>.
+    /// </summary>
+    public async Task<TResponse?> SendAsync<TResponse>(HttpMethod method, string url, object? body = null, Dictionary<string, string>? queryParams = null, bool retry = false)
+    {
+      try
+      {
+        var uriBuilder = new UriBuilder(new Uri(new Uri(_baseUrl), url));
+
+        if (queryParams != null && queryParams.Count > 0)
+        {
+          var query = HttpUtility.ParseQueryString(string.Empty);
+          foreach (var param in queryParams)
+          {
+            query[param.Key] = param.Value;
+          }
+          uriBuilder.Query = query.ToString();
+        }
+
+        string? jsonContent = body == null ? null : JsonSerializer.Serialize(body, body.GetType(), WriteOptions);
+
+        Func<Task<HttpResponseMessage>> send = async () =>
+        {
+          using var request = new HttpRequestMessage(method, uriBuilder.Uri);
+          request.Headers.Add("Accept", "application/json");
+
+          if (!string.IsNullOrEmpty(_accessToken))
+          {
+            request.Headers.Add("Authorization", $"Bearer {_accessToken}");
+          }
+
+          if (jsonContent != null)
+          {
+            request.Content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+          }
+
+          return await _httpClient.SendAsync(request).ConfigureAwait(false);
+        };
+
+        // only idempotent reads are retried
+        var response = retry
+          ? await RetryPolicy.ExecuteAsync(send).ConfigureAwait(false)
+          : await send().ConfigureAwait(false);
+
+        if (!response.IsSuccessStatusCode)
+        {
+          var errorMessage = await FormatErrorMessageAsync(response).ConfigureAwait(false);
+          throw new HttpRequestException(errorMessage);
+        }
+
+        var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+        if (string.IsNullOrWhiteSpace(responseContent))
+        {
+          return default;
+        }
+
+        return JsonSerializer.Deserialize<TResponse>(responseContent, ReadOptions);
+      }
+      catch (Exception ex) when (!(ex is InfisicalException))
+      {
+        throw new InfisicalException($"Error during {method.Method} request: {ex.Message}", ex);
+      }
+    }
+
+    /// <summary>Like <see cref="SendAsync{TResponse}"/>, but throws if the server returned no content.</summary>
+    public async Task<TResponse> SendRequiredAsync<TResponse>(HttpMethod method, string url, object? body = null, Dictionary<string, string>? queryParams = null, bool retry = false)
+    {
+      var result = await SendAsync<TResponse>(method, url, body, queryParams, retry).ConfigureAwait(false);
+      if (result == null)
+      {
+        throw new InfisicalException("Response body is null or empty");
+      }
+      return result;
+    }
+
     public void Dispose()
     {
       _httpClient?.Dispose();
@@ -323,7 +410,7 @@ namespace Infisical.Sdk.Api
       if (value != null)
       {
 #pragma warning disable CS8601 // Possible null reference assignment.
-        _params[key] = value.ToString();
+        _params[key] = value is bool boolean ? (boolean ? "true" : "false") : value.ToString();
 #pragma warning restore CS8601 // Possible null reference assignment.
       }
       return this;

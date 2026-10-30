@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Infisical.Sdk.Api;
 using Infisical.Sdk.Util;
 
@@ -150,6 +151,79 @@ public class SecretsClient
     catch (Exception e)
     {
       throw new InfisicalException("Failed to delete secret", e);
+    }
+  }
+
+  /// <summary>Creates multiple secrets in one request (v4 API).</summary>
+  public async Task<Secret[]> BatchCreateAsync(BatchCreateSecretsOptions options)
+  {
+    try
+    {
+      options.Validate();
+      var response = await _apiClient.SendRequiredAsync<JsonElement>(HttpMethod.Post, "/api/v4/secrets/batch", options).ConfigureAwait(false);
+      return ResponseReader.List<Secret>(response, "secrets");
+    }
+    catch (Exception e)
+    {
+      throw new InfisicalException("Failed to batch create secrets", e);
+    }
+  }
+
+  /// <summary>Updates multiple secrets in one request (v4 API).</summary>
+  public async Task<Secret[]> BatchUpdateAsync(BatchUpdateSecretsOptions options)
+  {
+    try
+    {
+      options.Validate();
+      var response = await _apiClient.SendRequiredAsync<JsonElement>(HttpMethods.Patch, "/api/v4/secrets/batch", options).ConfigureAwait(false);
+      return ResponseReader.List<Secret>(response, "secrets");
+    }
+    catch (Exception e)
+    {
+      throw new InfisicalException("Failed to batch update secrets", e);
+    }
+  }
+
+  /// <summary>Deletes multiple secrets in one request (v4 API).</summary>
+  public async Task<Secret[]> BatchDeleteAsync(BatchDeleteSecretsOptions options)
+  {
+    try
+    {
+      options.Validate();
+      var response = await _apiClient.SendRequiredAsync<JsonElement>(HttpMethod.Delete, "/api/v4/secrets/batch", options).ConfigureAwait(false);
+      return ResponseReader.List<Secret>(response, "secrets");
+    }
+    catch (Exception e)
+    {
+      throw new InfisicalException("Failed to batch delete secrets", e);
+    }
+  }
+
+  /// <summary>Moves secrets (by ID) to another environment / path.</summary>
+  public async Task<JsonElement> MoveAsync(MoveSecretsOptions options)
+  {
+    try
+    {
+      options.Validate();
+      return await _apiClient.SendRequiredAsync<JsonElement>(HttpMethod.Post, "/api/v4/secrets/move", options).ConfigureAwait(false);
+    }
+    catch (Exception e)
+    {
+      throw new InfisicalException("Failed to move secrets", e);
+    }
+  }
+
+  /// <summary>Duplicates secrets (by ID) to another environment / path.</summary>
+  public async Task<JsonElement> DuplicateAsync(DuplicateSecretsOptions options)
+  {
+    try
+    {
+      options.Validate();
+      return await _apiClient.SendRequiredAsync<JsonElement>(HttpMethod.Post, "/api/v4/secrets/duplicate", options).ConfigureAwait(false);
+    }
+    catch (Exception e)
+    {
+      throw new InfisicalException("Failed to duplicate secrets", e);
     }
   }
 
