@@ -30,6 +30,8 @@ namespace Infisical.Sdk
     private AppConnectionsClient _appConnections;
     private SecretRotationsClient _secretRotations;
     private OrganizationsClient _organizations;
+    private GatewaysClient _gateways;
+    private ProjectTemplatesClient _projectTemplates;
     private RawClient _raw;
     public InfisicalClient(InfisicalSdkSettings settings)
     {
@@ -56,6 +58,8 @@ namespace Infisical.Sdk
       _appConnections = new AppConnectionsClient(_apiClient);
       _secretRotations = new SecretRotationsClient(_apiClient);
       _organizations = new OrganizationsClient(_apiClient);
+      _gateways = new GatewaysClient(_apiClient);
+      _projectTemplates = new ProjectTemplatesClient(_apiClient);
       _raw = new RawClient(_apiClient);
     }
 
@@ -192,6 +196,18 @@ namespace Infisical.Sdk
     public OrganizationsClient Organizations()
     {
       return _organizations;
+    }
+
+    /// <summary>Infisical gateways (access to private networks).</summary>
+    public GatewaysClient Gateways()
+    {
+      return _gateways;
+    }
+
+    /// <summary>Templates for newly created projects.</summary>
+    public ProjectTemplatesClient ProjectTemplates()
+    {
+      return _projectTemplates;
     }
   }
 }
