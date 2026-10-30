@@ -27,6 +27,7 @@ namespace Infisical.Sdk
     private CertificateProfilesClient _certificateProfiles;
     private CertificatePoliciesClient _certificatePolicies;
     private CertificateAuthoritiesClient _certificateAuthorities;
+    private AppConnectionsClient _appConnections;
     private RawClient _raw;
     public InfisicalClient(InfisicalSdkSettings settings)
     {
@@ -50,6 +51,7 @@ namespace Infisical.Sdk
       _certificateProfiles = new CertificateProfilesClient(_apiClient);
       _certificatePolicies = new CertificatePoliciesClient(_apiClient);
       _certificateAuthorities = new CertificateAuthoritiesClient(_apiClient);
+      _appConnections = new AppConnectionsClient(_apiClient);
       _raw = new RawClient(_apiClient);
     }
 
@@ -168,6 +170,12 @@ namespace Infisical.Sdk
     public CertificateAuthoritiesClient CertificateAuthorities()
     {
       return _certificateAuthorities;
+    }
+
+    /// <summary>Credentials for external services (AWS, GitHub, databases, ...) used by secret syncs and more.</summary>
+    public AppConnectionsClient AppConnections()
+    {
+      return _appConnections;
     }
   }
 }

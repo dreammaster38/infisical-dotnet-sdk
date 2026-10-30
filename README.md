@@ -50,6 +50,7 @@ Besides secrets and PKI subscribers, the SDK covers the following areas of the I
 | `Kms()` | KMS keys (CRUD, rotate), encrypt / decrypt, sign / verify, public key |
 | `SharedSecrets()` | create, list, get, access, delete |
 | `ProjectAccess()` | project roles, project memberships of users, machine identities and groups |
+| `AppConnections()` | credentials for external services (`AppConnectionTypes.*`): list, available, get, create, update, delete, rotate credentials |
 | `SecretSyncs()` | secret syncs for all destinations (`SecretSyncDestinations.*`): list, get, create, update, delete, sync / import / remove secrets, check destination |
 | `Certificates()` | issue, get, bundle / private key, PKCS#12, search, renew, revoke, import, certificate requests |
 | `CertificateProfiles()` / `CertificatePolicies()` | CRUD for certificate profiles and policies |
@@ -76,13 +77,23 @@ await client.Secrets().BatchCreateAsync(new BatchCreateSecretsOptions
   }
 });
 
+// create an app connection, then use it for syncs
+var connection = await client.AppConnections().CreateAsync(new CreateAppConnectionOptions
+{
+  App = AppConnectionTypes.AWS,
+  Name = "aws-prod",
+  Method = "access-key",
+  ProjectId = project.Id,
+  Credentials = new() { ["accessKeyId"] = accessKeyId, ["secretAccessKey"] = secretAccessKey }
+});
+
 // sync the secrets of a folder to AWS Parameter Store
 await client.SecretSyncs().CreateAsync(new CreateSecretSyncOptions
 {
   Destination = SecretSyncDestinations.AWSParameterStore,
   Name = "my-app-sync",
   ProjectId = project.Id,
-  ConnectionId = awsConnectionId,
+  ConnectionId = connection.Id,
   EnvironmentSlug = "dev",
   SecretPath = "/backend",
   SyncOptions = new SecretSyncOptions { InitialSyncBehavior = SecretSyncInitialSyncBehaviors.OverwriteDestination },
