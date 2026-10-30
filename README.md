@@ -50,6 +50,7 @@ Besides secrets and PKI subscribers, the SDK covers the following areas of the I
 | `Kms()` | KMS keys (CRUD, rotate), encrypt / decrypt, sign / verify, public key |
 | `SharedSecrets()` | create, list, get, access, delete |
 | `ProjectAccess()` | project roles, project memberships of users, machine identities and groups |
+| `SecretRotations()` | automatic credential rotation for all types (`SecretRotationTypes.*`): list, get, create, update, delete, rotate now, generated credentials, check credentials, move |
 | `AppConnections()` | credentials for external services (`AppConnectionTypes.*`): list, available, get, create, update, delete, rotate credentials |
 | `SecretSyncs()` | secret syncs for all destinations (`SecretSyncDestinations.*`): list, get, create, update, delete, sync / import / remove secrets, check destination |
 | `Certificates()` | issue, get, bundle / private key, PKCS#12, search, renew, revoke, import, certificate requests |
@@ -98,6 +99,21 @@ await client.SecretSyncs().CreateAsync(new CreateSecretSyncOptions
   SecretPath = "/backend",
   SyncOptions = new SecretSyncOptions { InitialSyncBehavior = SecretSyncInitialSyncBehaviors.OverwriteDestination },
   DestinationConfig = new() { ["region"] = "eu-central-1", ["path"] = "/my-app/" }
+});
+
+// rotate the credentials of a Postgres user every 30 days
+await client.SecretRotations().CreateAsync(new CreateSecretRotationOptions
+{
+  Type = SecretRotationTypes.PostgresCredentials,
+  Name = "app-db",
+  ProjectId = project.Id,
+  ConnectionId = postgresConnectionId,
+  EnvironmentSlug = "dev",
+  SecretPath = "/backend",
+  RotationInterval = 30,
+  RotateAtUtc = new RotateAtUtc { Hours = 2, Minutes = 0 },
+  Parameters = new() { ["username1"] = "app_a", ["username2"] = "app_b" },
+  SecretsMapping = new() { ["username"] = "DB_USER", ["password"] = "DB_PASS" }
 });
 
 // request a certificate from a certificate profile

@@ -28,6 +28,7 @@ namespace Infisical.Sdk
     private CertificatePoliciesClient _certificatePolicies;
     private CertificateAuthoritiesClient _certificateAuthorities;
     private AppConnectionsClient _appConnections;
+    private SecretRotationsClient _secretRotations;
     private RawClient _raw;
     public InfisicalClient(InfisicalSdkSettings settings)
     {
@@ -52,6 +53,7 @@ namespace Infisical.Sdk
       _certificatePolicies = new CertificatePoliciesClient(_apiClient);
       _certificateAuthorities = new CertificateAuthoritiesClient(_apiClient);
       _appConnections = new AppConnectionsClient(_apiClient);
+      _secretRotations = new SecretRotationsClient(_apiClient);
       _raw = new RawClient(_apiClient);
     }
 
@@ -176,6 +178,12 @@ namespace Infisical.Sdk
     public AppConnectionsClient AppConnections()
     {
       return _appConnections;
+    }
+
+    /// <summary>Automatically rotate credentials (databases, API keys, cloud accounts, ...).</summary>
+    public SecretRotationsClient SecretRotations()
+    {
+      return _secretRotations;
     }
   }
 }
