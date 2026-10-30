@@ -42,6 +42,7 @@ namespace Infisical.Sdk
     private GatewayPoolsClient _gatewayPools;
     private PkiDiscoveryClient _pkiDiscovery;
     private ProxiedServicesClient _proxiedServices;
+    private CertificateInventoryClient _certificateInventory;
     private RawClient _raw;
     public InfisicalClient(InfisicalSdkSettings settings)
     {
@@ -80,6 +81,7 @@ namespace Infisical.Sdk
       _gatewayPools = new GatewayPoolsClient(_apiClient);
       _pkiDiscovery = new PkiDiscoveryClient(_apiClient);
       _proxiedServices = new ProxiedServicesClient(_apiClient);
+      _certificateInventory = new CertificateInventoryClient(_apiClient);
       _raw = new RawClient(_apiClient);
     }
 
@@ -288,6 +290,12 @@ namespace Infisical.Sdk
     public ProxiedServicesClient ProxiedServices()
     {
       return _proxiedServices;
+    }
+
+    /// <summary>Saved views of the certificate inventory.</summary>
+    public CertificateInventoryClient CertificateInventory()
+    {
+      return _certificateInventory;
     }
   }
 }
