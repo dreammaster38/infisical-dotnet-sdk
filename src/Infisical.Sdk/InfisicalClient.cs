@@ -35,6 +35,8 @@ namespace Infisical.Sdk
     private AlertsClient _alerts;
     private KmipServersClient _kmipServers;
     private SignersClient _signers;
+    private IdentityPrivilegesClient _identityPrivileges;
+    private SecretScanningClient _secretScanning;
     private RawClient _raw;
     public InfisicalClient(InfisicalSdkSettings settings)
     {
@@ -66,6 +68,8 @@ namespace Infisical.Sdk
       _alerts = new AlertsClient(_apiClient);
       _kmipServers = new KmipServersClient(_apiClient);
       _signers = new SignersClient(_apiClient);
+      _identityPrivileges = new IdentityPrivilegesClient(_apiClient);
+      _secretScanning = new SecretScanningClient(_apiClient);
       _raw = new RawClient(_apiClient);
     }
 
@@ -232,6 +236,18 @@ namespace Infisical.Sdk
     public SignersClient Signers()
     {
       return _signers;
+    }
+
+    /// <summary>Additional privileges of machine identities.</summary>
+    public IdentityPrivilegesClient IdentityPrivileges()
+    {
+      return _identityPrivileges;
+    }
+
+    /// <summary>Secret scanning data sources, scans and findings.</summary>
+    public SecretScanningClient SecretScanning()
+    {
+      return _secretScanning;
     }
   }
 }

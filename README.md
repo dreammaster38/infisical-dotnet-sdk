@@ -50,6 +50,8 @@ Besides secrets and PKI subscribers, the SDK covers the following areas of the I
 | `Kms()` | KMS keys (CRUD, rotate), encrypt / decrypt, sign / verify, public key |
 | `SharedSecrets()` | create, list, get, access, delete |
 | `ProjectAccess()` | project roles, project memberships of users, machine identities and groups |
+| `IdentityPrivileges()` | additional (optionally temporary) project privileges of machine identities: create, list, get, update, delete |
+| `SecretScanning()` | secret scanning data sources, resources, scans and findings (endpoints are not part of the public API reference) |
 | `Alerts()` | alerts with channels (CRUD, test channel) |
 | `KmipServers()` | KMIP servers: CRUD, revoke, generate enrollment token |
 | `Signers()` | code signing: signers (CRUD, enable / disable), sign, public key, certificate (get / reissue / import), approval policy, signing requests, operations |
