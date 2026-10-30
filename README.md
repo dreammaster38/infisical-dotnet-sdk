@@ -153,6 +153,14 @@ var auditLogs = await client.Raw().GetAsync("/api/v1/organization/audit-logs", n
 
 Response models expose the most important fields as properties; everything else the API returns is available through `AdditionalData`.
 
+## Tests
+
+The unit tests run the clients against a local fake HTTP server, so no Infisical instance is needed:
+
+```bash
+dotnet test src/Infisical.Sdk.UnitTests
+```
+
 ## Security
 
 Please do not file GitHub issues or post on our public forum for security vulnerabilities, as they are public!

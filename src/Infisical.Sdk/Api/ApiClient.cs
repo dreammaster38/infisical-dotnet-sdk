@@ -27,6 +27,14 @@ namespace Infisical.Sdk.Api
         .WaitAndRetryAsync(3, retryAttempt =>
             TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
 
+    // Used by the generic request method: only transient failures (network errors, 5xx, 408) are retried, so a 4xx
+    // answer (e.g. 404 or 403) is reported immediately.
+    private static readonly IAsyncPolicy<HttpResponseMessage> TransientRetryPolicy =
+    HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .WaitAndRetryAsync(3, retryAttempt =>
+            TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+
     public ApiClient(string baseUrl, string? accessToken = null)
     {
       _httpClient = new HttpClient();
@@ -360,7 +368,7 @@ namespace Infisical.Sdk.Api
 
         // only idempotent reads are retried
         var response = retry
-          ? await RetryPolicy.ExecuteAsync(send).ConfigureAwait(false)
+          ? await TransientRetryPolicy.ExecuteAsync(send).ConfigureAwait(false)
           : await send().ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
