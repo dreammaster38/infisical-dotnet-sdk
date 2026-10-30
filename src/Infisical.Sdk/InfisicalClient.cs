@@ -43,6 +43,8 @@ namespace Infisical.Sdk
     private PkiDiscoveryClient _pkiDiscovery;
     private ProxiedServicesClient _proxiedServices;
     private CertificateInventoryClient _certificateInventory;
+    private CertificateCleanupClient _certificateCleanup;
+    private CertificateTemplatesClient _certificateTemplates;
     private RawClient _raw;
     public InfisicalClient(InfisicalSdkSettings settings)
     {
@@ -82,6 +84,8 @@ namespace Infisical.Sdk
       _pkiDiscovery = new PkiDiscoveryClient(_apiClient);
       _proxiedServices = new ProxiedServicesClient(_apiClient);
       _certificateInventory = new CertificateInventoryClient(_apiClient);
+      _certificateCleanup = new CertificateCleanupClient(_apiClient);
+      _certificateTemplates = new CertificateTemplatesClient(_apiClient);
       _raw = new RawClient(_apiClient);
     }
 
@@ -296,6 +300,18 @@ namespace Infisical.Sdk
     public CertificateInventoryClient CertificateInventory()
     {
       return _certificateInventory;
+    }
+
+    /// <summary>Automatic deletion of expired certificates.</summary>
+    public CertificateCleanupClient CertificateCleanup()
+    {
+      return _certificateCleanup;
+    }
+
+    /// <summary>Legacy certificate templates (use profiles and policies for new setups).</summary>
+    public CertificateTemplatesClient CertificateTemplates()
+    {
+      return _certificateTemplates;
     }
   }
 }

@@ -67,6 +67,8 @@ Besides secrets and PKI subscribers, the SDK covers the following areas of the I
 | `AppConnections()` | credentials for external services (`AppConnectionTypes.*`): list, available, get, create, update, delete, rotate credentials |
 | `SecretSyncs()` | secret syncs for all destinations (`SecretSyncDestinations.*`): list, get, create, update, delete, sync / import / remove secrets, check destination |
 | `Certificates()` | issue, get, bundle / private key, PKCS#12, search, renew, revoke, import, certificate requests |
+| `CertificateCleanup()` | automatic deletion of expired certificates: get / update config |
+| `CertificateTemplates()` | legacy certificate templates incl. EST config (superseded by profiles and policies) |
 | `CertificateInventory()` | saved certificate inventory views (filters, columns): list, create, update, delete |
 | `CertificateProfiles()` / `CertificatePolicies()` | CRUD for certificate profiles and policies |
 | `CertificateAuthorities()` | internal CAs: CRUD, CSR, renew, sign intermediate, CRLs, auto-renewal, signing config |
