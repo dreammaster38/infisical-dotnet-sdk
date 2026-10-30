@@ -32,6 +32,9 @@ namespace Infisical.Sdk
     private OrganizationsClient _organizations;
     private GatewaysClient _gateways;
     private ProjectTemplatesClient _projectTemplates;
+    private AlertsClient _alerts;
+    private KmipServersClient _kmipServers;
+    private SignersClient _signers;
     private RawClient _raw;
     public InfisicalClient(InfisicalSdkSettings settings)
     {
@@ -60,6 +63,9 @@ namespace Infisical.Sdk
       _organizations = new OrganizationsClient(_apiClient);
       _gateways = new GatewaysClient(_apiClient);
       _projectTemplates = new ProjectTemplatesClient(_apiClient);
+      _alerts = new AlertsClient(_apiClient);
+      _kmipServers = new KmipServersClient(_apiClient);
+      _signers = new SignersClient(_apiClient);
       _raw = new RawClient(_apiClient);
     }
 
@@ -208,6 +214,24 @@ namespace Infisical.Sdk
     public ProjectTemplatesClient ProjectTemplates()
     {
       return _projectTemplates;
+    }
+
+    /// <summary>Alerts for events of resources, e.g. expiring certificates.</summary>
+    public AlertsClient Alerts()
+    {
+      return _alerts;
+    }
+
+    /// <summary>KMIP servers.</summary>
+    public KmipServersClient KmipServers()
+    {
+      return _kmipServers;
+    }
+
+    /// <summary>Code signing with certificate backed signers.</summary>
+    public SignersClient Signers()
+    {
+      return _signers;
     }
   }
 }
