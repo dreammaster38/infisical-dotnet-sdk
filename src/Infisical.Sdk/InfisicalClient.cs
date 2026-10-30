@@ -37,6 +37,8 @@ namespace Infisical.Sdk
     private SignersClient _signers;
     private IdentityPrivilegesClient _identityPrivileges;
     private SecretScanningClient _secretScanning;
+    private SecretValidationRulesClient _secretValidationRules;
+    private AgentVaultClient _agentVault;
     private RawClient _raw;
     public InfisicalClient(InfisicalSdkSettings settings)
     {
@@ -70,6 +72,8 @@ namespace Infisical.Sdk
       _signers = new SignersClient(_apiClient);
       _identityPrivileges = new IdentityPrivilegesClient(_apiClient);
       _secretScanning = new SecretScanningClient(_apiClient);
+      _secretValidationRules = new SecretValidationRulesClient(_apiClient);
+      _agentVault = new AgentVaultClient(_apiClient);
       _raw = new RawClient(_apiClient);
     }
 
@@ -248,6 +252,18 @@ namespace Infisical.Sdk
     public SecretScanningClient SecretScanning()
     {
       return _secretScanning;
+    }
+
+    /// <summary>Constraints for secret keys, values and generated passwords.</summary>
+    public SecretValidationRulesClient SecretValidationRules()
+    {
+      return _secretValidationRules;
+    }
+
+    /// <summary>Agent Vault: access bundles, variables, skills, proxies, sessions.</summary>
+    public AgentVaultClient AgentVault()
+    {
+      return _agentVault;
     }
   }
 }

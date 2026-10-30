@@ -50,6 +50,8 @@ Besides secrets and PKI subscribers, the SDK covers the following areas of the I
 | `Kms()` | KMS keys (CRUD, rotate), encrypt / decrypt, sign / verify, public key |
 | `SharedSecrets()` | create, list, get, access, delete |
 | `ProjectAccess()` | project roles, project memberships of users, machine identities and groups |
+| `SecretValidationRules()` | constraints for secret keys / values, dynamic secret and rotation passwords (`SecretValidationRuleTypes.*`): list, get, create, update, delete |
+| `AgentVault()` | Agent Vault: `AccessBundles` (incl. services, skills, grants), `Variables`, `Skills`, `Proxies`, `Sessions` (incl. logs), `Members`, `Settings`, `AwsConnections` |
 | `IdentityPrivileges()` | additional (optionally temporary) project privileges of machine identities: create, list, get, update, delete |
 | `SecretScanning()` | secret scanning data sources, resources, scans and findings (endpoints are not part of the public API reference) |
 | `Alerts()` | alerts with channels (CRUD, test channel) |
