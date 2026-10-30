@@ -29,6 +29,7 @@ namespace Infisical.Sdk
     private CertificateAuthoritiesClient _certificateAuthorities;
     private AppConnectionsClient _appConnections;
     private SecretRotationsClient _secretRotations;
+    private OrganizationsClient _organizations;
     private RawClient _raw;
     public InfisicalClient(InfisicalSdkSettings settings)
     {
@@ -54,6 +55,7 @@ namespace Infisical.Sdk
       _certificateAuthorities = new CertificateAuthoritiesClient(_apiClient);
       _appConnections = new AppConnectionsClient(_apiClient);
       _secretRotations = new SecretRotationsClient(_apiClient);
+      _organizations = new OrganizationsClient(_apiClient);
       _raw = new RawClient(_apiClient);
     }
 
@@ -184,6 +186,12 @@ namespace Infisical.Sdk
     public SecretRotationsClient SecretRotations()
     {
       return _secretRotations;
+    }
+
+    /// <summary>Organizations, memberships, roles, sub-organizations, SSO and audit logs.</summary>
+    public OrganizationsClient Organizations()
+    {
+      return _organizations;
     }
   }
 }

@@ -50,6 +50,7 @@ Besides secrets and PKI subscribers, the SDK covers the following areas of the I
 | `Kms()` | KMS keys (CRUD, rotate), encrypt / decrypt, sign / verify, public key |
 | `SharedSecrets()` | create, list, get, access, delete |
 | `ProjectAccess()` | project roles, project memberships of users, machine identities and groups |
+| `Organizations()` | organizations (list, get, create, update, delete), user and identity memberships, `Roles()`, `SubOrganizations()`, `Sso()` (LDAP, OIDC, SAML, SCIM group mappings), audit logs and audit log settings |
 | `SecretRotations()` | automatic credential rotation for all types (`SecretRotationTypes.*`): list, get, create, update, delete, rotate now, generated credentials, check credentials, move |
 | `AppConnections()` | credentials for external services (`AppConnectionTypes.*`): list, available, get, create, update, delete, rotate credentials |
 | `SecretSyncs()` | secret syncs for all destinations (`SecretSyncDestinations.*`): list, get, create, update, delete, sync / import / remove secrets, check destination |
@@ -115,6 +116,11 @@ await client.SecretRotations().CreateAsync(new CreateSecretRotationOptions
   Parameters = new() { ["username1"] = "app_a", ["username2"] = "app_b" },
   SecretsMapping = new() { ["username"] = "DB_USER", ["password"] = "DB_PASS" }
 });
+
+// organization management
+var members = await client.Organizations().ListMembershipsAsync(orgId);
+await client.Organizations().SubOrganizations().CreateAsync("Team A");
+var logs = await client.Organizations().ListAuditLogsAsync(new AuditLogsQuery { EventTypes = new[] { "create-secret" }, Limit = 50 });
 
 // request a certificate from a certificate profile
 var cert = await client.Certificates().IssueAsync(new IssueCertificateRequest
