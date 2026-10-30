@@ -45,6 +45,8 @@ namespace Infisical.Sdk
     private CertificateInventoryClient _certificateInventory;
     private CertificateCleanupClient _certificateCleanup;
     private CertificateTemplatesClient _certificateTemplates;
+    private OrganizationAdminClient _organizationAdmin;
+    private InstanceClient _instance;
     private RawClient _raw;
     public InfisicalClient(InfisicalSdkSettings settings)
     {
@@ -86,6 +88,8 @@ namespace Infisical.Sdk
       _certificateInventory = new CertificateInventoryClient(_apiClient);
       _certificateCleanup = new CertificateCleanupClient(_apiClient);
       _certificateTemplates = new CertificateTemplatesClient(_apiClient);
+      _organizationAdmin = new OrganizationAdminClient(_apiClient);
+      _instance = new InstanceClient(_apiClient);
       _raw = new RawClient(_apiClient);
     }
 
@@ -312,6 +316,18 @@ namespace Infisical.Sdk
     public CertificateTemplatesClient CertificateTemplates()
     {
       return _certificateTemplates;
+    }
+
+    /// <summary>Organization administration (access to all projects).</summary>
+    public OrganizationAdminClient OrganizationAdmin()
+    {
+      return _organizationAdmin;
+    }
+
+    /// <summary>Instance status and bootstrap.</summary>
+    public InstanceClient Instance()
+    {
+      return _instance;
     }
   }
 }

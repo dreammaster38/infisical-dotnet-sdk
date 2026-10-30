@@ -60,9 +60,11 @@ Besides secrets and PKI subscribers, the SDK covers the following areas of the I
 | `ProxiedServices()` | proxied services: create, list, get (by id / name), update, delete, report usage |
 | `GatewayPools()` | gateway pools: CRUD, add / remove gateways, resources |
 | `PkiDiscovery()` | certificate discovery jobs (network, Linux and Windows servers): CRUD, scans, scan history, and found installations |
+| `OrganizationAdmin()` | list all projects of the organization, grant yourself project admin access |
+| `Instance()` | instance status and first-time bootstrap (admin user, organization, machine identity) |
 | `Gateways()` | gateways: create, get, update, revoke, generate enrollment token |
 | `ProjectTemplates()` | project templates: list, get, create, update, delete |
-| `Organizations()` | organizations (list, get, create, update, delete), user and identity memberships, `Roles()`, `SubOrganizations()`, `Sso()` (LDAP, OIDC, SAML, SCIM group mappings), audit logs and audit log settings |
+| `Organizations()` | organizations (list, get, create, update, delete), user and identity memberships, `Roles()`, `SubOrganizations()`, `Sso()` (LDAP, OIDC, SAML, SCIM group mappings), `Scim()` (SCIM tokens, events), audit logs and audit log settings |
 | `SecretRotations()` | automatic credential rotation for all types (`SecretRotationTypes.*`): list, get, create, update, delete, rotate now, generated credentials, check credentials, move |
 | `AppConnections()` | credentials for external services (`AppConnectionTypes.*`): list, available, get, create, update, delete, rotate credentials |
 | `SecretSyncs()` | secret syncs for all destinations (`SecretSyncDestinations.*`): list, get, create, update, delete, sync / import / remove secrets, check destination |

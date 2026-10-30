@@ -11,6 +11,7 @@ public class OrganizationsClient
   private readonly OrganizationRolesClient _roles;
   private readonly SubOrganizationsClient _subOrganizations;
   private readonly SsoClient _sso;
+  private readonly ScimClient _scim;
 
   public OrganizationsClient(ApiClient apiClient)
   {
@@ -18,11 +19,15 @@ public class OrganizationsClient
     _roles = new OrganizationRolesClient(apiClient);
     _subOrganizations = new SubOrganizationsClient(apiClient);
     _sso = new SsoClient(apiClient);
+    _scim = new ScimClient(apiClient);
   }
 
   public OrganizationRolesClient Roles() => _roles;
   public SubOrganizationsClient SubOrganizations() => _subOrganizations;
   public SsoClient Sso() => _sso;
+
+  /// <summary>SCIM tokens and events.</summary>
+  public ScimClient Scim() => _scim;
 
   private static string Org(string organizationId)
   {
