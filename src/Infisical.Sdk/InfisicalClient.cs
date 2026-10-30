@@ -11,12 +11,86 @@ namespace Infisical.Sdk
     private AuthClient _authClient;
     private SecretsClient _secretsClient;
     private PkiClient _pkiClient;
+    private ProjectsClient _projects;
+    private EnvironmentsClient _environments;
+    private FoldersClient _folders;
+    private SecretImportsClient _secretImports;
+    private SecretTagsClient _secretTags;
+    private IdentitiesClient _identities;
+    private DynamicSecretsClient _dynamicSecrets;
+    private GroupsClient _groups;
+    private KmsClient _kms;
+    private SharedSecretsClient _sharedSecrets;
+    private ProjectAccessClient _projectAccess;
+    private SecretSyncsClient _secretSyncs;
+    private CertificatesClient _certificates;
+    private CertificateProfilesClient _certificateProfiles;
+    private CertificatePoliciesClient _certificatePolicies;
+    private CertificateAuthoritiesClient _certificateAuthorities;
+    private AppConnectionsClient _appConnections;
+    private SecretRotationsClient _secretRotations;
+    private OrganizationsClient _organizations;
+    private GatewaysClient _gateways;
+    private ProjectTemplatesClient _projectTemplates;
+    private AlertsClient _alerts;
+    private KmipServersClient _kmipServers;
+    private SignersClient _signers;
+    private IdentityPrivilegesClient _identityPrivileges;
+    private SecretScanningClient _secretScanning;
+    private SecretValidationRulesClient _secretValidationRules;
+    private AgentVaultClient _agentVault;
+    private GatewayPoolsClient _gatewayPools;
+    private PkiDiscoveryClient _pkiDiscovery;
+    private ProxiedServicesClient _proxiedServices;
+    private CertificateInventoryClient _certificateInventory;
+    private CertificateCleanupClient _certificateCleanup;
+    private CertificateTemplatesClient _certificateTemplates;
+    private OrganizationAdminClient _organizationAdmin;
+    private InstanceClient _instance;
+    private RawClient _raw;
     public InfisicalClient(InfisicalSdkSettings settings)
     {
       _apiClient = new ApiClient(settings.HostUri);
       _secretsClient = new SecretsClient(_apiClient);
       _authClient = new AuthClient(_apiClient, (accessToken) => _apiClient.SetAccessToken(accessToken));
       _pkiClient = new PkiClient(_apiClient);
+      _projects = new ProjectsClient(_apiClient);
+      _environments = new EnvironmentsClient(_apiClient);
+      _folders = new FoldersClient(_apiClient);
+      _secretImports = new SecretImportsClient(_apiClient);
+      _secretTags = new SecretTagsClient(_apiClient);
+      _identities = new IdentitiesClient(_apiClient);
+      _dynamicSecrets = new DynamicSecretsClient(_apiClient);
+      _groups = new GroupsClient(_apiClient);
+      _kms = new KmsClient(_apiClient);
+      _sharedSecrets = new SharedSecretsClient(_apiClient);
+      _projectAccess = new ProjectAccessClient(_apiClient);
+      _secretSyncs = new SecretSyncsClient(_apiClient);
+      _certificates = new CertificatesClient(_apiClient);
+      _certificateProfiles = new CertificateProfilesClient(_apiClient);
+      _certificatePolicies = new CertificatePoliciesClient(_apiClient);
+      _certificateAuthorities = new CertificateAuthoritiesClient(_apiClient);
+      _appConnections = new AppConnectionsClient(_apiClient);
+      _secretRotations = new SecretRotationsClient(_apiClient);
+      _organizations = new OrganizationsClient(_apiClient);
+      _gateways = new GatewaysClient(_apiClient);
+      _projectTemplates = new ProjectTemplatesClient(_apiClient);
+      _alerts = new AlertsClient(_apiClient);
+      _kmipServers = new KmipServersClient(_apiClient);
+      _signers = new SignersClient(_apiClient);
+      _identityPrivileges = new IdentityPrivilegesClient(_apiClient);
+      _secretScanning = new SecretScanningClient(_apiClient);
+      _secretValidationRules = new SecretValidationRulesClient(_apiClient);
+      _agentVault = new AgentVaultClient(_apiClient);
+      _gatewayPools = new GatewayPoolsClient(_apiClient);
+      _pkiDiscovery = new PkiDiscoveryClient(_apiClient);
+      _proxiedServices = new ProxiedServicesClient(_apiClient);
+      _certificateInventory = new CertificateInventoryClient(_apiClient);
+      _certificateCleanup = new CertificateCleanupClient(_apiClient);
+      _certificateTemplates = new CertificateTemplatesClient(_apiClient);
+      _organizationAdmin = new OrganizationAdminClient(_apiClient);
+      _instance = new InstanceClient(_apiClient);
+      _raw = new RawClient(_apiClient);
     }
 
     public AuthClient Auth()
@@ -32,6 +106,228 @@ namespace Infisical.Sdk
     public PkiClient Pki()
     {
       return _pkiClient;
+    }
+
+    /// <summary>Create, read, update and delete projects.</summary>
+    public ProjectsClient Projects()
+    {
+      return _projects;
+    }
+
+    /// <summary>Manage the environments of a project.</summary>
+    public EnvironmentsClient Environments()
+    {
+      return _environments;
+    }
+
+    /// <summary>Manage secret folders.</summary>
+    public FoldersClient Folders()
+    {
+      return _folders;
+    }
+
+    /// <summary>Manage secret imports between folders.</summary>
+    public SecretImportsClient SecretImports()
+    {
+      return _secretImports;
+    }
+
+    /// <summary>Manage the secret tags of a project.</summary>
+    public SecretTagsClient SecretTags()
+    {
+      return _secretTags;
+    }
+
+    /// <summary>Manage machine identities and their auth methods.</summary>
+    public IdentitiesClient Identities()
+    {
+      return _identities;
+    }
+
+    /// <summary>Manage dynamic secrets and their leases.</summary>
+    public DynamicSecretsClient DynamicSecrets()
+    {
+      return _dynamicSecrets;
+    }
+
+    /// <summary>Manage groups and their members.</summary>
+    public GroupsClient Groups()
+    {
+      return _groups;
+    }
+
+    /// <summary>Cryptographic keys of the Infisical KMS.</summary>
+    public KmsClient Kms()
+    {
+      return _kms;
+    }
+
+    /// <summary>Share secrets via a one-time link.</summary>
+    public SharedSecretsClient SharedSecrets()
+    {
+      return _sharedSecrets;
+    }
+
+    /// <summary>Project roles and memberships of identities, groups and users.</summary>
+    public ProjectAccessClient ProjectAccess()
+    {
+      return _projectAccess;
+    }
+
+    /// <summary>Call any endpoint of the Infisical API that has no typed client yet.</summary>
+    public RawClient Raw()
+    {
+      return _raw;
+    }
+
+    /// <summary>Sync secrets to external destinations (AWS, GitHub, Vercel, ...).</summary>
+    public SecretSyncsClient SecretSyncs()
+    {
+      return _secretSyncs;
+    }
+
+    /// <summary>Issue, renew, revoke and export certificates.</summary>
+    public CertificatesClient Certificates()
+    {
+      return _certificates;
+    }
+
+    /// <summary>Certificate profiles (enrollment configuration).</summary>
+    public CertificateProfilesClient CertificateProfiles()
+    {
+      return _certificateProfiles;
+    }
+
+    /// <summary>Certificate policies.</summary>
+    public CertificatePoliciesClient CertificatePolicies()
+    {
+      return _certificatePolicies;
+    }
+
+    /// <summary>Internal certificate authorities.</summary>
+    public CertificateAuthoritiesClient CertificateAuthorities()
+    {
+      return _certificateAuthorities;
+    }
+
+    /// <summary>Credentials for external services (AWS, GitHub, databases, ...) used by secret syncs and more.</summary>
+    public AppConnectionsClient AppConnections()
+    {
+      return _appConnections;
+    }
+
+    /// <summary>Automatically rotate credentials (databases, API keys, cloud accounts, ...).</summary>
+    public SecretRotationsClient SecretRotations()
+    {
+      return _secretRotations;
+    }
+
+    /// <summary>Organizations, memberships, roles, sub-organizations, SSO and audit logs.</summary>
+    public OrganizationsClient Organizations()
+    {
+      return _organizations;
+    }
+
+    /// <summary>Infisical gateways (access to private networks).</summary>
+    public GatewaysClient Gateways()
+    {
+      return _gateways;
+    }
+
+    /// <summary>Templates for newly created projects.</summary>
+    public ProjectTemplatesClient ProjectTemplates()
+    {
+      return _projectTemplates;
+    }
+
+    /// <summary>Alerts for events of resources, e.g. expiring certificates.</summary>
+    public AlertsClient Alerts()
+    {
+      return _alerts;
+    }
+
+    /// <summary>KMIP servers.</summary>
+    public KmipServersClient KmipServers()
+    {
+      return _kmipServers;
+    }
+
+    /// <summary>Code signing with certificate backed signers.</summary>
+    public SignersClient Signers()
+    {
+      return _signers;
+    }
+
+    /// <summary>Additional privileges of machine identities.</summary>
+    public IdentityPrivilegesClient IdentityPrivileges()
+    {
+      return _identityPrivileges;
+    }
+
+    /// <summary>Secret scanning data sources, scans and findings.</summary>
+    public SecretScanningClient SecretScanning()
+    {
+      return _secretScanning;
+    }
+
+    /// <summary>Constraints for secret keys, values and generated passwords.</summary>
+    public SecretValidationRulesClient SecretValidationRules()
+    {
+      return _secretValidationRules;
+    }
+
+    /// <summary>Agent Vault: access bundles, variables, skills, proxies, sessions.</summary>
+    public AgentVaultClient AgentVault()
+    {
+      return _agentVault;
+    }
+
+    /// <summary>Gateway pools (groups of gateways).</summary>
+    public GatewayPoolsClient GatewayPools()
+    {
+      return _gatewayPools;
+    }
+
+    /// <summary>Certificate discovery jobs, scans and installations.</summary>
+    public PkiDiscoveryClient PkiDiscovery()
+    {
+      return _pkiDiscovery;
+    }
+
+    /// <summary>Hosts whose requests are rewritten with credentials from secrets.</summary>
+    public ProxiedServicesClient ProxiedServices()
+    {
+      return _proxiedServices;
+    }
+
+    /// <summary>Saved views of the certificate inventory.</summary>
+    public CertificateInventoryClient CertificateInventory()
+    {
+      return _certificateInventory;
+    }
+
+    /// <summary>Automatic deletion of expired certificates.</summary>
+    public CertificateCleanupClient CertificateCleanup()
+    {
+      return _certificateCleanup;
+    }
+
+    /// <summary>Legacy certificate templates (use profiles and policies for new setups).</summary>
+    public CertificateTemplatesClient CertificateTemplates()
+    {
+      return _certificateTemplates;
+    }
+
+    /// <summary>Organization administration (access to all projects).</summary>
+    public OrganizationAdminClient OrganizationAdmin()
+    {
+      return _organizationAdmin;
+    }
+
+    /// <summary>Instance status and bootstrap.</summary>
+    public InstanceClient Instance()
+    {
+      return _instance;
     }
   }
 }
