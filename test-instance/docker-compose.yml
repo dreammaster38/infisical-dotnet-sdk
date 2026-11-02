@@ -1,0 +1,40 @@
+# A throw-away Infisical instance for the live tests of the SDK. Test credentials only - do not use it for real data.
+# Start it with ./run-live-tests.sh (it also bootstraps the instance and runs the live tests) or, by hand:
+#   docker compose --env-file .env up -d
+# The server runs its database migrations itself when it starts.
+name: infisical-sdk-test
+
+services:
+  backend:
+    image: infisical/infisical:${INFISICAL_IMAGE_TAG:-latest} # set INFISICAL_IMAGE_TAG to pin a version
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run ./run-live-tests.sh or copy .env.example to .env}
+      AUTH_SECRET: ${AUTH_SECRET:?run ./run-live-tests.sh or copy .env.example to .env}
+      DB_CONNECTION_URI: postgres://infisical:${POSTGRES_PASSWORD:?run ./run-live-tests.sh or copy .env.example to .env}@db:5432/infisical
+      REDIS_URL: redis://redis:6379
+      SITE_URL: http://localhost:${INFISICAL_PORT:-8080}
+      TELEMETRY_ENABLED: "false"
+    ports:
+      # only reachable from this machine
+      - "127.0.0.1:${INFISICAL_PORT:-8080}:8080"
+
+  db:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: infisical
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run ./run-live-tests.sh or copy .env.example to .env}
+      POSTGRES_DB: infisical
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U infisical -d infisical"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
