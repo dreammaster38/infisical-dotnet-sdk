@@ -329,5 +329,15 @@ namespace Infisical.Sdk
     {
       return _instance;
     }
+
+    /// <summary>
+    /// Selects the Certificate Manager project that is used for all calls of the certificate, CA, profile, policy,
+    /// signer, discovery, inventory and cleanup clients that address a resource by ID. Needed when the organization
+    /// has more than one Certificate Manager project. Pass null to go back to the server's default project.
+    /// </summary>
+    public void SetCertManagerProject(string? projectId)
+    {
+      _apiClient.CertManagerProjectId = projectId;
+    }
   }
 }

@@ -38,11 +38,22 @@ namespace Infisical.Sdk.Api
     public ApiClient(string baseUrl, string? accessToken = null)
     {
       _httpClient = new HttpClient();
+      // the Infisical backend requires a user agent for some endpoints (e.g. the user login)
+      _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("infisical-dotnet-sdk");
       _baseUrl = baseUrl;
       _accessToken = accessToken;
 
       FormatBaseUrl();
     }
+
+    private static readonly string[] CertManagerPrefixes = { "/api/v1/cert-manager/", "/api/v1/pki/", "/api/v2/pki/" };
+
+    /// <summary>
+    /// If set, this project ID is sent as <c>projectId</c> query parameter with every Certificate Manager request that
+    /// does not carry one. Without it the server uses the default Certificate Manager project of the organization,
+    /// which is not what you want when the organization has several of them.
+    /// </summary>
+    public string? CertManagerProjectId { get; set; }
 
     public void SetAccessToken(string accessToken)
     {
@@ -335,6 +346,15 @@ namespace Infisical.Sdk.Api
       try
       {
         var uriBuilder = new UriBuilder(new Uri(new Uri(_baseUrl), url));
+
+        if (!string.IsNullOrEmpty(CertManagerProjectId) && CertManagerPrefixes.Any(prefix => url.StartsWith(prefix, StringComparison.Ordinal)))
+        {
+          queryParams = queryParams == null ? new Dictionary<string, string>() : new Dictionary<string, string>(queryParams);
+          if (!queryParams.ContainsKey("projectId"))
+          {
+            queryParams["projectId"] = CertManagerProjectId!;
+          }
+        }
 
         if (queryParams != null && queryParams.Count > 0)
         {

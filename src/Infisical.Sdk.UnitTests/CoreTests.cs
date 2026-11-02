@@ -128,4 +128,60 @@ public class CoreTests
     Assert.Equal("w", (await h.Client.Projects().GetAsync("wrapped")).Id);
     Assert.Equal("f", (await h.Client.Projects().GetAsync("flat")).Id);
   }
+
+  [Fact]
+  public async Task User_login_selects_the_organization_and_uses_the_org_token()
+  {
+    using var h = new Harness();
+    h.On("POST", "/api/v3/auth/login", "{\"accessToken\":\"user-token\"}");
+    h.On("POST", "/api/v3/auth/select-organization", "{\"token\":\"org-token\",\"isMfaEnabled\":false}");
+    h.On("GET", "/api/v1/organization", "{\"organizations\":[{\"id\":\"o1\",\"name\":\"Org\"}]}");
+
+    var result = await h.Client.Auth().UserAuth().LoginAsync("a@b.c", "pw", "o1");
+    var orgs = await h.Client.Organizations().ListAsync();
+
+    Assert.Equal("org-token", result.AccessToken);
+    Assert.Equal("o1", result.OrganizationId);
+    Assert.Equal("a@b.c", h.Requests[0].Json.GetProperty("email").GetString());
+    Assert.Equal("Bearer user-token", h.Requests[1].Authorization);       // select-organization is called with the login token
+    Assert.Equal("Bearer org-token", h.Requests[2].Authorization);
+    Assert.Single(orgs);
+  }
+
+  [Fact]
+  public async Task User_login_without_organization_keeps_the_login_token()
+  {
+    using var h = new Harness();
+    h.On("POST", "/api/v3/auth/login", "{\"accessToken\":\"user-token\"}");
+
+    var result = await h.Client.Auth().UserAuth().LoginAsync("a@b.c", "pw");
+
+    Assert.Null(result.OrganizationId);
+    Assert.Single(h.Requests);
+  }
+
+  [Fact]
+  public async Task User_login_reports_missing_mfa_support()
+  {
+    using var h = new Harness();
+    h.On("POST", "/api/v3/auth/login", "{\"accessToken\":\"user-token\"}");
+    h.On("POST", "/api/v3/auth/select-organization", "{\"token\":\"mfa-token\",\"isMfaEnabled\":true,\"mfaMethod\":\"totp\"}");
+
+    var ex = await Assert.ThrowsAsync<InfisicalException>(() => h.Client.Auth().UserAuth().LoginAsync("a@b.c", "pw", "o1"));
+
+    var messages = new List<string>();
+    for (Exception? e = ex; e != null; e = e.InnerException) messages.Add(e.Message);
+    Assert.Contains(messages, m => m.Contains("MFA"));
+  }
+
+  [Fact]
+  public async Task Requests_send_a_user_agent()
+  {
+    using var h = new Harness();
+    h.On("GET", "/api/status", "{}");
+
+    await h.Client.Instance().GetStatusAsync();
+
+    Assert.Contains("infisical-dotnet-sdk", h.Last.UserAgent);
+  }
 }

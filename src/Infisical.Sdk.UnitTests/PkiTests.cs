@@ -205,4 +205,33 @@ public class PkiTests
     Assert.Equal("SIG", signed.GetProperty("signature").GetString());
     Assert.Equal("disabled", h.Requests[0].Json.GetProperty("status").GetString());
   }
+
+  [Fact]
+  public async Task Cert_manager_project_is_sent_with_id_based_calls_when_selected()
+  {
+    using var h = new Harness();
+    h.On("DELETE", "/api/v1/cert-manager/certificate-inventory-views/v1", "{\"view\":{\"id\":\"v1\"}}");
+    h.On("GET", "/api/v1/projects/p1", "{\"project\":{\"id\":\"p1\"}}");
+    h.On("GET", "/api/v1/cert-manager/certificate-profiles", "{\"certificateProfiles\":[]}");
+
+    h.Client.SetCertManagerProject("cm-project");
+    await h.Client.CertificateInventory().DeleteViewAsync("v1");
+    await h.Client.Projects().GetAsync("p1");
+    await h.Client.CertificateProfiles().ListAsync("explicit-project");
+
+    Assert.Equal("cm-project", h.Requests[0].Query["projectId"]);
+    Assert.Null(h.Requests[1].Query["projectId"]);                       // not a Certificate Manager path
+    Assert.Equal("explicit-project", h.Requests[2].Query["projectId"]);  // an explicit project wins
+  }
+
+  [Fact]
+  public async Task Cert_manager_project_is_not_sent_by_default()
+  {
+    using var h = new Harness();
+    h.On("DELETE", "/api/v1/cert-manager/certificate-inventory-views/v1", "{\"view\":{\"id\":\"v1\"}}");
+
+    await h.Client.CertificateInventory().DeleteViewAsync("v1");
+
+    Assert.Null(h.Last.Query["projectId"]);
+  }
 }

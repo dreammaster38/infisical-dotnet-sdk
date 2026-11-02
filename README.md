@@ -168,6 +168,9 @@ unless these environment variables are set:
 export INFISICAL_LIVE_URL=http://localhost:8080
 export INFISICAL_LIVE_TOKEN=<access token of a machine identity that is admin of the organization>
 export INFISICAL_LIVE_ORG_ID=<organization id>
+# optional, enables the test for user-only endpoints
+export INFISICAL_LIVE_USER_EMAIL=<email of an organization admin>
+export INFISICAL_LIVE_USER_PASSWORD=<password>
 dotnet test src/Infisical.Sdk.UnitTests --filter Category=Live
 ```
 
@@ -176,8 +179,13 @@ organization id. Features that need an Enterprise license (groups, custom roles,
 secret rotations, secret scanning) are not covered by the live tests.
 
 > **Note:** a few endpoints only accept a user login and reject machine identity tokens with `403`, e.g. listing or
-> reading organizations, SCIM tokens and creating certificate inventory views. The SDK authenticates as a machine
-> identity (or with `Auth().SetAccessToken(...)`), so use `Raw()` with a user token for those.
+> reading organizations, SCIM tokens and creating certificate inventory views. For those, log in as a user:
+> `await client.Auth().UserAuth().LoginAsync(email, password, organizationId);` (users with MFA are not supported,
+> and user tokens are short lived and not refreshed by the SDK).
+>
+> When an organization has several Certificate Manager projects, call `client.SetCertManagerProject(projectId)` so that
+> calls that address a resource by ID (get / update / delete of certificates, CAs, profiles, signers, ...) use the right
+> project; otherwise the server falls back to its default Certificate Manager project.
 
 ## Security
 

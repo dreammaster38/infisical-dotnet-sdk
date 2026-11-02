@@ -8,7 +8,7 @@ using Infisical.Sdk.Model;
 
 namespace Infisical.Sdk.Tests;
 
-internal sealed record Recorded(string Method, string Path, string RawQuery, string Body, string? Authorization)
+internal sealed record Recorded(string Method, string Path, string RawQuery, string Body, string? Authorization, string? UserAgent = null)
 {
   public NameValueCollection Query => HttpUtility.ParseQueryString(RawQuery);
 
@@ -95,7 +95,7 @@ internal sealed class Harness : IDisposable
       }
 
       var url = ctx.Request.Url!;
-      var recorded = new Recorded(ctx.Request.HttpMethod, url.AbsolutePath, url.Query, body, ctx.Request.Headers["Authorization"]);
+      var recorded = new Recorded(ctx.Request.HttpMethod, url.AbsolutePath, url.Query, body, ctx.Request.Headers["Authorization"], ctx.Request.UserAgent);
 
       (int Status, string Body) response;
       lock (_lock)
