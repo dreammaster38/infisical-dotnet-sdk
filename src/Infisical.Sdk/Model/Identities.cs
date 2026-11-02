@@ -83,7 +83,7 @@ public class UpdateIdentityOptions
 
 public class SearchIdentitiesOptions
 {
-  /// <summary>"name" | "role"</summary>
+  /// <summary>"name", "role" or "lastLogin".</summary>
   [JsonPropertyName("orderBy")]
   public string? OrderBy { get; init; }
 

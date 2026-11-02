@@ -513,7 +513,7 @@ public class SignersClient
 
   // --- operations -------------------------------------------------------------------------------
 
-  /// <summary>Lists the signing operations (audit trail) of the signer. <paramref name="status"/> filters by status.</summary>
+  /// <summary>Lists the signing operations (audit trail) of the signer. <paramref name="status"/> is "pending", "success", "failed" or "denied".</summary>
   public async Task<JsonElement> ListOperationsAsync(string signerId, string? status = null, int? offset = null, int? limit = null)
   {
     try

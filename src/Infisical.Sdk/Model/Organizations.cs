@@ -302,7 +302,7 @@ public class AuditLogsQuery
 {
   public string? ProjectId { get; init; }
   public string? Environment { get; init; }
-  /// <summary>"user", "service", "identity", "kmip-client", ...</summary>
+  /// <summary>"user", "service", "identity", "kmipClient", "platform", "scimClient", ...</summary>
   public string? ActorType { get; init; }
   public string? Actor { get; init; }
   public string? SecretPath { get; init; }

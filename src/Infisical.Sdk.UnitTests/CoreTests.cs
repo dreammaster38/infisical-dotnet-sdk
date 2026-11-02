@@ -184,4 +184,19 @@ public class CoreTests
 
     Assert.Contains("infisical-dotnet-sdk", h.Last.UserAgent);
   }
+
+  [Fact]
+  public async Task Responses_with_a_different_primitive_type_than_modelled_are_still_read()
+  {
+    using var h = new Harness();
+    // Name is modelled as text but sent as a number, ScanIntervalDays is modelled as int but sent as a string,
+    // Description is sent as an object
+    h.On("GET", "/api/v1/cert-manager/discovery-jobs/d1", "{\"id\":\"d1\",\"name\":12345,\"scanIntervalDays\":\"7\",\"isActive\":true,\"description\":{\"a\":1}}");
+
+    var job = await h.Client.PkiDiscovery().GetJobAsync("d1");
+
+    Assert.Equal("12345", job.Name);
+    Assert.Equal(7, job.ScanIntervalDays);
+    Assert.Equal("{\"a\":1}", job.Description);
+  }
 }

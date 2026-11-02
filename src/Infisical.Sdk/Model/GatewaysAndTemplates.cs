@@ -246,7 +246,7 @@ public class ProjectTemplateOptions
   [JsonPropertyName("description")]
   public string? Description { get; init; }
 
-  /// <summary>Project type, e.g. "secret-manager". Required when creating.</summary>
+  /// <summary>Project type, see <see cref="ProjectTypes"/>. Required when creating.</summary>
   [JsonPropertyName("type")]
   public string? Type { get; init; }
 

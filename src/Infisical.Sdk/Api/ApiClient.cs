@@ -327,10 +327,7 @@ namespace Infisical.Sdk.Api
       }
     }
 
-    private static readonly JsonSerializerOptions ReadOptions = new JsonSerializerOptions
-    {
-      PropertyNameCaseInsensitive = true
-    };
+    private static readonly JsonSerializerOptions ReadOptions = Infisical.Sdk.Util.JsonDefaults.Read;
 
     private static readonly JsonSerializerOptions WriteOptions = new JsonSerializerOptions
     {
