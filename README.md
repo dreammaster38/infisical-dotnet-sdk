@@ -161,6 +161,24 @@ The unit tests run the clients against a local fake HTTP server, so no Infisical
 dotnet test src/Infisical.Sdk.UnitTests
 ```
 
+The same project contains smoke tests (category `Live`) that run against a real Infisical instance. They are skipped
+unless these environment variables are set:
+
+```bash
+export INFISICAL_LIVE_URL=http://localhost:8080
+export INFISICAL_LIVE_TOKEN=<access token of a machine identity that is admin of the organization>
+export INFISICAL_LIVE_ORG_ID=<organization id>
+dotnet test src/Infisical.Sdk.UnitTests --filter Category=Live
+```
+
+A fresh instance can be bootstrapped with `client.Instance().BootstrapAsync(...)`, which returns such a token and the
+organization id. Features that need an Enterprise license (groups, custom roles, project templates, gateway pools,
+secret rotations, secret scanning) are not covered by the live tests.
+
+> **Note:** a few endpoints only accept a user login and reject machine identity tokens with `403`, e.g. listing or
+> reading organizations, SCIM tokens and creating certificate inventory views. The SDK authenticates as a machine
+> identity (or with `Auth().SetAccessToken(...)`), so use `Raw()` with a user token for those.
+
 ## Security
 
 Please do not file GitHub issues or post on our public forum for security vulnerabilities, as they are public!

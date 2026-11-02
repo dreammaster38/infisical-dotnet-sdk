@@ -204,6 +204,16 @@ public class AuthClient
   public AlicloudAuth AlicloudAuth() => _alicloudAuth;
   public TlsCertAuth TlsCertAuth() => _tlsCertAuth;
 
+  /// <summary>
+  /// Uses an existing access token (e.g. a token auth token or the token returned by the instance bootstrap) for all
+  /// following requests, without logging in.
+  /// </summary>
+  public void SetAccessToken(string accessToken)
+  {
+    if (string.IsNullOrEmpty(accessToken)) throw new InfisicalException("AccessToken is required");
+    _setAccessTokenFunc(accessToken);
+  }
+
   /// <summary>Renews the given access token (extends its TTL) and uses the renewed token for further requests.</summary>
   public async Task<MachineIdentityCredential> RenewTokenAsync(string accessToken)
   {

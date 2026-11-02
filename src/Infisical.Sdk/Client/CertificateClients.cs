@@ -144,8 +144,8 @@ public class CertificatesClient
     }
   }
 
-  /// <param name="revocationReason">CRL reason, e.g. "unspecified", "keyCompromise", "cessationOfOperation".</param>
-  public async Task<JsonElement> RevokeAsync(string certificateId, string revocationReason = "unspecified")
+  /// <param name="revocationReason">One of <see cref="CertificateRevocationReasons"/>, e.g. "KEY_COMPROMISE".</param>
+  public async Task<JsonElement> RevokeAsync(string certificateId, string revocationReason = CertificateRevocationReasons.Unspecified)
   {
     try
     {
@@ -597,7 +597,7 @@ public class CertificateAuthoritiesClient
     }
   }
 
-  /// <summary>Renews the CA certificate. <paramref name="type"/> is "existing" or "new".</summary>
+  /// <summary>Renews the CA certificate. <paramref name="type"/> is "existing" (re-sign with the existing key).</summary>
   public async Task<CertificateMaterial> RenewAsync(string caId, string type, string notAfter)
   {
     try

@@ -17,6 +17,19 @@ public class CoreTests
   }
 
   [Fact]
+  public async Task An_existing_access_token_can_be_used_without_login()
+  {
+    using var h = new Harness();
+    h.On("GET", "/api/v1/projects", "{\"projects\":[]}");
+
+    h.Client.Auth().SetAccessToken("static-token");
+    await h.Client.Projects().ListAsync();
+
+    Assert.Equal("Bearer static-token", h.Last.Authorization);
+    Assert.Throws<InfisicalException>(() => h.Client.Auth().SetAccessToken(""));
+  }
+
+  [Fact]
   public async Task Requests_before_login_are_anonymous()
   {
     using var h = new Harness();

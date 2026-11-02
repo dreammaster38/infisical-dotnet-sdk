@@ -39,9 +39,9 @@ public class PkiTests
     using var h = new Harness();
     h.On("POST", "/api/v1/cert-manager/certificates/c1/revoke", "{\"message\":\"ok\"}");
 
-    await h.Client.Certificates().RevokeAsync("c1", "keyCompromise");
+    await h.Client.Certificates().RevokeAsync("c1", CertificateRevocationReasons.KeyCompromise);
 
-    Assert.Equal("keyCompromise", h.Last.Json.GetProperty("revocationReason").GetString());
+    Assert.Equal("KEY_COMPROMISE", h.Last.Json.GetProperty("revocationReason").GetString());
   }
 
   [Fact]
