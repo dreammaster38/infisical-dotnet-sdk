@@ -7,10 +7,7 @@ namespace Infisical.Sdk.Util
   /// </summary>
   internal static class ResponseReader
   {
-    private static readonly JsonSerializerOptions Options = new JsonSerializerOptions
-    {
-      PropertyNameCaseInsensitive = true
-    };
+    private static readonly JsonSerializerOptions Options = JsonDefaults.Read;
 
     public static T? Deserialize<T>(JsonElement element)
     {

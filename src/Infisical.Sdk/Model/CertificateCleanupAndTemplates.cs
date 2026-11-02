@@ -89,9 +89,11 @@ public class CertificateTemplateOptions
   [JsonPropertyName("ttl")]
   public string? Ttl { get; init; }
 
+  /// <summary>Legacy templates use camelCase values: "digitalSignature", "keyEncipherment", "nonRepudiation", ...</summary>
   [JsonPropertyName("keyUsages")]
   public string[]? KeyUsages { get; init; }
 
+  /// <summary>Legacy templates use camelCase values: "clientAuth", "serverAuth", "codeSigning", "emailProtection", ...</summary>
   [JsonPropertyName("extendedKeyUsages")]
   public string[]? ExtendedKeyUsages { get; init; }
 }

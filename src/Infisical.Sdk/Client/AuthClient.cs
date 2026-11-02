@@ -151,6 +151,66 @@ public class TlsCertAuth : LoginBase
 }
 
 
+/// <summary>
+/// Login as a user (email and password). Some endpoints only accept user tokens, e.g. listing organizations, SCIM
+/// tokens or creating certificate inventory views. User tokens are short lived and are not refreshed by the SDK, call
+/// <see cref="LoginAsync"/> again when one expires. Users with MFA enabled are not supported.
+/// </summary>
+public class UserAuth
+{
+  private readonly ApiClient _apiClient;
+  private readonly Action<string> _setAccessTokenFunc;
+
+  public UserAuth(ApiClient apiClient, Action<string> setAccessTokenFunc)
+  {
+    _apiClient = apiClient;
+    _setAccessTokenFunc = setAccessTokenFunc;
+  }
+
+  /// <param name="organizationId">Organization to scope the token to. Required for most endpoints.</param>
+  public async Task<UserLoginResult> LoginAsync(string email, string password, string? organizationId = null)
+  {
+    try
+    {
+      if (string.IsNullOrEmpty(email)) throw new InfisicalException("Email is required");
+      if (string.IsNullOrEmpty(password)) throw new InfisicalException("Password is required");
+
+      var login = await _apiClient.SendRequiredAsync<System.Text.Json.JsonElement>(HttpMethod.Post, "/api/v3/auth/login", new { email, password }).ConfigureAwait(false);
+      var accessToken = login.GetProperty("accessToken").GetString() ?? string.Empty;
+      _setAccessTokenFunc(accessToken);
+
+      return organizationId == null ? new UserLoginResult(accessToken, null) : await SelectOrganizationAsync(organizationId).ConfigureAwait(false);
+    }
+    catch (Exception e)
+    {
+      throw new InfisicalException("Failed to login as user", e);
+    }
+  }
+
+  /// <summary>Scopes the current user token to an organization and uses the new token for further requests.</summary>
+  public async Task<UserLoginResult> SelectOrganizationAsync(string organizationId)
+  {
+    try
+    {
+      if (string.IsNullOrEmpty(organizationId)) throw new InfisicalException("OrganizationId is required");
+      var response = await _apiClient.SendRequiredAsync<System.Text.Json.JsonElement>(HttpMethod.Post, "/api/v3/auth/select-organization", new { organizationId }).ConfigureAwait(false);
+
+      if (response.TryGetProperty("isMfaEnabled", out var mfa) && mfa.ValueKind == System.Text.Json.JsonValueKind.True)
+      {
+        throw new InfisicalException("The user has MFA enabled for this organization, which the SDK does not support");
+      }
+
+      var token = response.GetProperty("token").GetString() ?? string.Empty;
+      _setAccessTokenFunc(token);
+      return new UserLoginResult(token, organizationId);
+    }
+    catch (Exception e)
+    {
+      throw new InfisicalException("Failed to select organization", e);
+    }
+  }
+}
+
 public class AuthClient
 {
   private readonly ApiClient _apiClient;
@@ -165,6 +225,7 @@ public class AuthClient
   OciAuth _ociAuth;
   AlicloudAuth _alicloudAuth;
   TlsCertAuth _tlsCertAuth;
+  UserAuth _userAuth;
   private readonly Action<string> _setAccessTokenFunc;
 
   public AuthClient(ApiClient apiClient, Action<string> setAccessTokenFunc)
@@ -182,6 +243,7 @@ public class AuthClient
     _ociAuth = new OciAuth(_apiClient, _setAccessTokenFunc);
     _alicloudAuth = new AlicloudAuth(_apiClient, _setAccessTokenFunc);
     _tlsCertAuth = new TlsCertAuth(_apiClient, _setAccessTokenFunc);
+    _userAuth = new UserAuth(_apiClient, _setAccessTokenFunc);
   }
 
   public UniversalAuth UniversalAuth()
@@ -203,6 +265,7 @@ public class AuthClient
   public OciAuth OciAuth() => _ociAuth;
   public AlicloudAuth AlicloudAuth() => _alicloudAuth;
   public TlsCertAuth TlsCertAuth() => _tlsCertAuth;
+  public UserAuth UserAuth() => _userAuth;
 
   /// <summary>
   /// Uses an existing access token (e.g. a token auth token or the token returned by the instance bootstrap) for all

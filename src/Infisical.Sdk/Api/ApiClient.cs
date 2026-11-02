@@ -38,11 +38,22 @@ namespace Infisical.Sdk.Api
     public ApiClient(string baseUrl, string? accessToken = null)
     {
       _httpClient = new HttpClient();
+      // the Infisical backend requires a user agent for some endpoints (e.g. the user login)
+      _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("infisical-dotnet-sdk");
       _baseUrl = baseUrl;
       _accessToken = accessToken;
 
       FormatBaseUrl();
     }
+
+    private static readonly string[] CertManagerPrefixes = { "/api/v1/cert-manager/", "/api/v1/pki/", "/api/v2/pki/" };
+
+    /// <summary>
+    /// If set, this project ID is sent as <c>projectId</c> query parameter with every Certificate Manager request that
+    /// does not carry one. Without it the server uses the default Certificate Manager project of the organization,
+    /// which is not what you want when the organization has several of them.
+    /// </summary>
+    public string? CertManagerProjectId { get; set; }
 
     public void SetAccessToken(string accessToken)
     {
@@ -316,15 +327,69 @@ namespace Infisical.Sdk.Api
       }
     }
 
-    private static readonly JsonSerializerOptions ReadOptions = new JsonSerializerOptions
-    {
-      PropertyNameCaseInsensitive = true
-    };
+    private static readonly JsonSerializerOptions ReadOptions = Infisical.Sdk.Util.JsonDefaults.Read;
 
     private static readonly JsonSerializerOptions WriteOptions = new JsonSerializerOptions
     {
       DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
+
+    private async Task<HttpResponseMessage> SendCoreAsync(HttpMethod method, string url, object? body, Dictionary<string, string>? queryParams, bool retry)
+    {
+      var uriBuilder = new UriBuilder(new Uri(new Uri(_baseUrl), url));
+
+      if (!string.IsNullOrEmpty(CertManagerProjectId) && CertManagerPrefixes.Any(prefix => url.StartsWith(prefix, StringComparison.Ordinal)))
+      {
+        queryParams = queryParams == null ? new Dictionary<string, string>() : new Dictionary<string, string>(queryParams);
+        if (!queryParams.ContainsKey("projectId"))
+        {
+          queryParams["projectId"] = CertManagerProjectId!;
+        }
+      }
+
+      if (queryParams != null && queryParams.Count > 0)
+      {
+        var query = HttpUtility.ParseQueryString(string.Empty);
+        foreach (var param in queryParams)
+        {
+          query[param.Key] = param.Value;
+        }
+        uriBuilder.Query = query.ToString();
+      }
+
+      string? jsonContent = body == null ? null : JsonSerializer.Serialize(body, body.GetType(), WriteOptions);
+
+      Func<Task<HttpResponseMessage>> send = async () =>
+      {
+        using var request = new HttpRequestMessage(method, uriBuilder.Uri);
+        request.Headers.Add("Accept", "application/json");
+
+        if (!string.IsNullOrEmpty(_accessToken))
+        {
+          request.Headers.Add("Authorization", $"Bearer {_accessToken}");
+        }
+
+        if (jsonContent != null)
+        {
+          request.Content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+        }
+
+        return await _httpClient.SendAsync(request).ConfigureAwait(false);
+      };
+
+      // only idempotent reads are retried
+      var response = retry
+        ? await TransientRetryPolicy.ExecuteAsync(send).ConfigureAwait(false)
+        : await send().ConfigureAwait(false);
+
+      if (!response.IsSuccessStatusCode)
+      {
+        var errorMessage = await FormatErrorMessageAsync(response).ConfigureAwait(false);
+        throw new HttpRequestException(errorMessage);
+      }
+
+      return response;
+    }
 
     /// <summary>
     /// Generic request used by the typed clients. Null properties are omitted from the request body.
@@ -334,49 +399,7 @@ namespace Infisical.Sdk.Api
     {
       try
       {
-        var uriBuilder = new UriBuilder(new Uri(new Uri(_baseUrl), url));
-
-        if (queryParams != null && queryParams.Count > 0)
-        {
-          var query = HttpUtility.ParseQueryString(string.Empty);
-          foreach (var param in queryParams)
-          {
-            query[param.Key] = param.Value;
-          }
-          uriBuilder.Query = query.ToString();
-        }
-
-        string? jsonContent = body == null ? null : JsonSerializer.Serialize(body, body.GetType(), WriteOptions);
-
-        Func<Task<HttpResponseMessage>> send = async () =>
-        {
-          using var request = new HttpRequestMessage(method, uriBuilder.Uri);
-          request.Headers.Add("Accept", "application/json");
-
-          if (!string.IsNullOrEmpty(_accessToken))
-          {
-            request.Headers.Add("Authorization", $"Bearer {_accessToken}");
-          }
-
-          if (jsonContent != null)
-          {
-            request.Content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-          }
-
-          return await _httpClient.SendAsync(request).ConfigureAwait(false);
-        };
-
-        // only idempotent reads are retried
-        var response = retry
-          ? await TransientRetryPolicy.ExecuteAsync(send).ConfigureAwait(false)
-          : await send().ConfigureAwait(false);
-
-        if (!response.IsSuccessStatusCode)
-        {
-          var errorMessage = await FormatErrorMessageAsync(response).ConfigureAwait(false);
-          throw new HttpRequestException(errorMessage);
-        }
-
+        var response = await SendCoreAsync(method, url, body, queryParams, retry).ConfigureAwait(false);
         var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
         if (string.IsNullOrWhiteSpace(responseContent))
@@ -385,6 +408,34 @@ namespace Infisical.Sdk.Api
         }
 
         return JsonSerializer.Deserialize<TResponse>(responseContent, ReadOptions);
+      }
+      catch (Exception ex) when (!(ex is InfisicalException))
+      {
+        throw new InfisicalException($"Error during {method.Method} request: {ex.Message}", ex);
+      }
+    }
+
+    /// <summary>For endpoints that do not answer with JSON but with text (e.g. a PEM encoded private key).</summary>
+    public async Task<string> SendForTextAsync(HttpMethod method, string url, object? body = null, Dictionary<string, string>? queryParams = null, bool retry = false)
+    {
+      try
+      {
+        var response = await SendCoreAsync(method, url, body, queryParams, retry).ConfigureAwait(false);
+        return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+      }
+      catch (Exception ex) when (!(ex is InfisicalException))
+      {
+        throw new InfisicalException($"Error during {method.Method} request: {ex.Message}", ex);
+      }
+    }
+
+    /// <summary>For endpoints that answer with binary data (e.g. a PKCS#12 keystore or a DER certificate).</summary>
+    public async Task<byte[]> SendForBytesAsync(HttpMethod method, string url, object? body = null, Dictionary<string, string>? queryParams = null, bool retry = false)
+    {
+      try
+      {
+        var response = await SendCoreAsync(method, url, body, queryParams, retry).ConfigureAwait(false);
+        return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
       }
       catch (Exception ex) when (!(ex is InfisicalException))
       {

@@ -205,4 +205,68 @@ public class PkiTests
     Assert.Equal("SIG", signed.GetProperty("signature").GetString());
     Assert.Equal("disabled", h.Requests[0].Json.GetProperty("status").GetString());
   }
+
+  [Fact]
+  public async Task Cert_manager_project_is_sent_with_id_based_calls_when_selected()
+  {
+    using var h = new Harness();
+    h.On("DELETE", "/api/v1/cert-manager/certificate-inventory-views/v1", "{\"view\":{\"id\":\"v1\"}}");
+    h.On("GET", "/api/v1/projects/p1", "{\"project\":{\"id\":\"p1\"}}");
+    h.On("GET", "/api/v1/cert-manager/certificate-profiles", "{\"certificateProfiles\":[]}");
+
+    h.Client.SetCertManagerProject("cm-project");
+    await h.Client.CertificateInventory().DeleteViewAsync("v1");
+    await h.Client.Projects().GetAsync("p1");
+    await h.Client.CertificateProfiles().ListAsync("explicit-project");
+
+    Assert.Equal("cm-project", h.Requests[0].Query["projectId"]);
+    Assert.Null(h.Requests[1].Query["projectId"]);                       // not a Certificate Manager path
+    Assert.Equal("explicit-project", h.Requests[2].Query["projectId"]);  // an explicit project wins
+  }
+
+  [Fact]
+  public async Task Cert_manager_project_is_not_sent_by_default()
+  {
+    using var h = new Harness();
+    h.On("DELETE", "/api/v1/cert-manager/certificate-inventory-views/v1", "{\"view\":{\"id\":\"v1\"}}");
+
+    await h.Client.CertificateInventory().DeleteViewAsync("v1");
+
+    Assert.Null(h.Last.Query["projectId"]);
+  }
+
+  [Fact]
+  public async Task Certificate_private_key_is_read_from_a_plain_text_response()
+  {
+    using var h = new Harness();
+    h.On("GET", "/api/v1/cert-manager/certificates/c1/private-key", "-----BEGIN PRIVATE KEY-----\nABC\n-----END PRIVATE KEY-----\n");
+
+    var material = await h.Client.Certificates().GetPrivateKeyAsync("c1");
+
+    Assert.StartsWith("-----BEGIN PRIVATE KEY-----", material.PrivateKey);
+  }
+
+  [Fact]
+  public async Task Pkcs12_export_returns_the_binary_response()
+  {
+    using var h = new Harness();
+    h.On("POST", "/api/v1/cert-manager/certificates/c1/pkcs12", "P12DATA");
+
+    var bytes = await h.Client.Certificates().ExportPkcs12Async("c1", "pw", "alias");
+
+    Assert.Equal("P12DATA", System.Text.Encoding.UTF8.GetString(bytes));
+    Assert.Equal("alias", h.Last.Json.GetProperty("alias").GetString());
+  }
+
+  [Fact]
+  public async Task Signer_certificate_maps_certificatePem()
+  {
+    using var h = new Harness();
+    h.On("GET", "/api/v1/cert-manager/signers/sg1/certificate", "{\"certificatePem\":\"PEM\",\"serialNumber\":\"0a\",\"signerName\":\"s\"}");
+
+    var certificate = await h.Client.Signers().GetCertificateAsync("sg1");
+
+    Assert.Equal("PEM", certificate.Certificate);
+    Assert.Equal("0a", certificate.SerialNumber);
+  }
 }

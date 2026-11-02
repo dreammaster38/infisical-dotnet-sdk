@@ -83,7 +83,7 @@ public class UpdateIdentityOptions
 
 public class SearchIdentitiesOptions
 {
-  /// <summary>"name" | "role"</summary>
+  /// <summary>"name", "role" or "lastLogin".</summary>
   [JsonPropertyName("orderBy")]
   public string? OrderBy { get; init; }
 
@@ -518,4 +518,23 @@ public class AlicloudAuthLoginRequest
 
   [JsonPropertyName("organizationSlug")]
   public string? OrganizationSlug { get; init; }
+}
+
+// ---------------------------------------------------------------------------------------------
+// User login
+// ---------------------------------------------------------------------------------------------
+
+public class UserLoginResult
+{
+  public UserLoginResult(string accessToken, string? organizationId)
+  {
+    AccessToken = accessToken;
+    OrganizationId = organizationId;
+  }
+
+  /// <summary>The user access token that is now used for all requests of the client.</summary>
+  public string AccessToken { get; }
+
+  /// <summary>The organization the token is scoped to, if one was selected.</summary>
+  public string? OrganizationId { get; }
 }

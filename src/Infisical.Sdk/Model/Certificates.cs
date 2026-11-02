@@ -20,6 +20,48 @@ public static class CertificateRevocationReasons
   public const string AaCompromise = "A_A_COMPROMISE";
 }
 
+/// <summary>Key usages of the Certificate Manager API.</summary>
+public static class CertificateKeyUsages
+{
+  public const string DigitalSignature = "digital_signature";
+  public const string KeyEncipherment = "key_encipherment";
+  public const string NonRepudiation = "non_repudiation";
+  public const string DataEncipherment = "data_encipherment";
+  public const string KeyAgreement = "key_agreement";
+  public const string KeyCertSign = "key_cert_sign";
+  public const string CrlSign = "crl_sign";
+  public const string EncipherOnly = "encipher_only";
+  public const string DecipherOnly = "decipher_only";
+}
+
+/// <summary>Extended key usages of the Certificate Manager API.</summary>
+public static class CertificateExtendedKeyUsages
+{
+  public const string ClientAuth = "client_auth";
+  public const string ServerAuth = "server_auth";
+  public const string CodeSigning = "code_signing";
+  public const string EmailProtection = "email_protection";
+  public const string OcspSigning = "ocsp_signing";
+  public const string SmartCardLogon = "smart_card_logon";
+  public const string TimeStamping = "time_stamping";
+  public const string AnyPurpose = "any_purpose";
+}
+
+/// <summary>Signing algorithms of KMS keys and code signing signers.</summary>
+public static class SigningAlgorithms
+{
+  public const string RsassaPssSha512 = "RSASSA_PSS_SHA_512";
+  public const string RsassaPssSha384 = "RSASSA_PSS_SHA_384";
+  public const string RsassaPssSha256 = "RSASSA_PSS_SHA_256";
+  public const string RsassaPkcs1V15Sha512 = "RSASSA_PKCS1_V1_5_SHA_512";
+  public const string RsassaPkcs1V15Sha384 = "RSASSA_PKCS1_V1_5_SHA_384";
+  public const string RsassaPkcs1V15Sha256 = "RSASSA_PKCS1_V1_5_SHA_256";
+  public const string EcdsaSha512 = "ECDSA_SHA_512";
+  public const string EcdsaSha384 = "ECDSA_SHA_384";
+  public const string EcdsaSha256 = "ECDSA_SHA_256";
+  public const string Ed25519 = "ED25519";
+}
+
 public class SubjectAlternativeName
 {
   /// <summary>"dns_name", "ip_address", "email", "uri" or "upn".</summary>
@@ -50,9 +92,11 @@ public class CertificateAttributes
   [JsonPropertyName("locality")]
   public string? Locality { get; init; }
 
+  /// <summary>See <see cref="CertificateKeyUsages"/>.</summary>
   [JsonPropertyName("keyUsages")]
   public string[]? KeyUsages { get; init; }
 
+  /// <summary>See <see cref="CertificateExtendedKeyUsages"/>.</summary>
   [JsonPropertyName("extendedKeyUsages")]
   public string[]? ExtendedKeyUsages { get; init; }
 

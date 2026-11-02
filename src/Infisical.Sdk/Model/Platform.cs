@@ -5,6 +5,17 @@ using System.Text.Json.Serialization;
 // Projects
 // ---------------------------------------------------------------------------------------------
 
+/// <summary>Project types.</summary>
+public static class ProjectTypes
+{
+  public const string SecretManager = "secret-manager";
+  public const string CertManager = "cert-manager";
+  public const string Kms = "kms";
+  public const string SecretScanning = "secret-scanning";
+  public const string Pam = "pam";
+  public const string AgentVault = "agent-vault";
+}
+
 public class ProjectEnvironment : ApiModel
 {
   [JsonPropertyName("id")]
@@ -64,7 +75,7 @@ public class CreateProjectOptions
   [JsonPropertyName("template")]
   public string? Template { get; init; }
 
-  /// <summary>Project type, e.g. "secret-manager", "cert-manager", "kms", "ssh".</summary>
+  /// <summary>Project type, see <see cref="ProjectTypes"/>. Defaults to "secret-manager".</summary>
   [JsonPropertyName("type")]
   public string? Type { get; init; }
 
@@ -125,7 +136,7 @@ public class ListProjectsOptions
 {
   public bool IncludeRoles { get; init; } = false;
 
-  /// <summary>Optional project type filter, e.g. "secret-manager".</summary>
+  /// <summary>Optional project type filter, see <see cref="ProjectTypes"/>.</summary>
   public string? Type { get; init; }
 }
 
@@ -499,7 +510,7 @@ public class BatchUpdateSecretsOptions
   [JsonPropertyName("secretPath")]
   public string SecretPath { get; init; } = "/";
 
-  /// <summary>"failOnNotFound" (default) or "ignoreNotFound".</summary>
+  /// <summary>"failOnNotFound" (default), "ignore" (skip missing secrets) or "upsert" (create missing secrets).</summary>
   [JsonPropertyName("mode")]
   public string? Mode { get; init; }
 

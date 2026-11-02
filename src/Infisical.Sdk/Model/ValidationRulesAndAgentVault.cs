@@ -124,6 +124,41 @@ public class SecretValidationRuleOptions
 // ---------------------------------------------------------------------------------------------
 
 /// <summary>Generic Agent Vault resource (access bundle, variable, skill, proxy, session, ...).</summary>
+public static class AgentVaultVariableScopes
+{
+  public const string Global = "global";
+  public const string Personal = "personal";
+}
+
+public static class AgentVaultSkillFileModes
+{
+  /// <summary>Regular file.</summary>
+  public const string Regular = "0644";
+
+  /// <summary>Executable file.</summary>
+  public const string Executable = "0755";
+}
+
+public static class AgentVaultTrafficPolicies
+{
+  public const string AnyHost = "any-host";
+  public const string BundleHosts = "bundle-hosts";
+}
+
+public static class AgentVaultCredentialTypes
+{
+  public const string Bearer = "bearer";
+  public const string Basic = "basic";
+  public const string Passthrough = "passthrough";
+  public const string OAuth = "oauth";
+}
+
+public static class AgentVaultPersonalValueFields
+{
+  public const string CredentialUsername = "credential-username";
+  public const string CredentialValue = "credential-value";
+}
+
 public class AgentVaultResource : ApiModel
 {
   [JsonPropertyName("id")]
@@ -171,7 +206,7 @@ public class AgentVaultVariableOptions
   [JsonIgnore]
   public string? VariableId { get; init; }
 
-  /// <summary>Variable scope, see the API reference (e.g. "shared" or "personal").</summary>
+  /// <summary>Variable scope, see <see cref="AgentVaultVariableScopes"/>.</summary>
   [JsonPropertyName("scope")]
   public string? Scope { get; init; }
 
@@ -187,7 +222,7 @@ public class AgentVaultSkillFile
   [JsonPropertyName("path")]
   public string Path { get; init; } = string.Empty;
 
-  /// <summary>File mode as listed in the API reference.</summary>
+  /// <summary>File mode, see <see cref="AgentVaultSkillFileModes"/>.</summary>
   [JsonPropertyName("mode")]
   public string Mode { get; init; } = string.Empty;
 
@@ -220,7 +255,7 @@ public class AgentVaultProxyOptions
   [JsonPropertyName("name")]
   public string? Name { get; init; }
 
-  /// <summary>Traffic policy as listed in the API reference (default: any host).</summary>
+  /// <summary>See <see cref="AgentVaultTrafficPolicies"/> (default: any host).</summary>
   [JsonPropertyName("trafficPolicy")]
   public string? TrafficPolicy { get; init; }
 
@@ -248,7 +283,7 @@ public class CreateAgentVaultSessionOptions
 
 public class ListAgentVaultSessionsOptions
 {
-  /// <summary>"mine" (default) or the other scopes of the API reference.</summary>
+  /// <summary>"mine" (default) or "all".</summary>
   public string? Scope { get; init; }
   public string[]? Statuses { get; init; }
   public string? Search { get; init; }

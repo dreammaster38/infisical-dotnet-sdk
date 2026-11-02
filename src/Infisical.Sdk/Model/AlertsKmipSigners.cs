@@ -47,7 +47,7 @@ public class Alert : ApiModel
 
 public class AlertRecipient
 {
-  /// <summary>"user", "group" or "project" (see the API reference).</summary>
+  /// <summary>"user", "group", "email" or "project-members".</summary>
   [JsonPropertyName("principalType")]
   public string PrincipalType { get; init; } = string.Empty;
 
@@ -64,7 +64,7 @@ public class AlertChannel
   [JsonPropertyName("name")]
   public string Name { get; init; } = string.Empty;
 
-  /// <summary>E.g. "email", "slack", "webhook". See the API reference for the available channel types.</summary>
+  /// <summary>"email", "slack", "webhook" or "pagerduty".</summary>
   [JsonPropertyName("channelType")]
   public string ChannelType { get; init; } = string.Empty;
 
@@ -322,7 +322,7 @@ public class CreateSignerOptions
   [JsonPropertyName("certificateRenewBeforeDays")]
   public int? CertificateRenewBeforeDays { get; init; }
 
-  /// <summary>"RSA_2048", "RSA_3072", "RSA_4096", "ECDSA_P256", "ECDSA_P384" or "ECDSA_P521".</summary>
+  /// <summary>"RSA_2048", "RSA_3072", "RSA_4096", "EC_prime256v1", "EC_secp384r1" or "EC_secp521r1".</summary>
   [JsonPropertyName("keyAlgorithm")]
   public string? KeyAlgorithm { get; init; }
 

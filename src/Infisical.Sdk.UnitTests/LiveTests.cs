@@ -20,8 +20,23 @@ public sealed class LiveFactAttribute : FactAttribute
   }
 }
 
+/// <summary>Like <see cref="LiveFactAttribute"/>, but also needs INFISICAL_LIVE_USER_EMAIL and INFISICAL_LIVE_USER_PASSWORD.</summary>
+public sealed class LiveUserFactAttribute : FactAttribute
+{
+  public LiveUserFactAttribute()
+  {
+    if (string.IsNullOrEmpty(Live.Url) || string.IsNullOrEmpty(Live.OrgId) || string.IsNullOrEmpty(Live.UserEmail) || string.IsNullOrEmpty(Live.UserPassword))
+    {
+      Skip = "Set INFISICAL_LIVE_URL, INFISICAL_LIVE_ORG_ID, INFISICAL_LIVE_USER_EMAIL and INFISICAL_LIVE_USER_PASSWORD to run this test.";
+    }
+  }
+}
+
 internal static class Live
 {
+  public static string? UserEmail => Environment.GetEnvironmentVariable("INFISICAL_LIVE_USER_EMAIL");
+  public static string? UserPassword => Environment.GetEnvironmentVariable("INFISICAL_LIVE_USER_PASSWORD");
+
   public static string? Url => Environment.GetEnvironmentVariable("INFISICAL_LIVE_URL");
   public static string? Token => Environment.GetEnvironmentVariable("INFISICAL_LIVE_TOKEN");
   public static string? OrgId => Environment.GetEnvironmentVariable("INFISICAL_LIVE_ORG_ID");
@@ -225,6 +240,9 @@ public class LiveTests
 
       Assert.Equal(certificateId, (await _client.Certificates().GetAsync(certificateId)).Id);
       Assert.False(string.IsNullOrEmpty((await _client.Certificates().GetBundleAsync(certificateId)).PrivateKey));
+      Assert.StartsWith("-----BEGIN", (await _client.Certificates().GetPrivateKeyAsync(certificateId)).PrivateKey);
+      Assert.NotEmpty(await _client.Certificates().ExportPkcs12Async(certificateId, "Passw0rd-123456!", "svc"));
+      Assert.False(string.IsNullOrEmpty((await _client.CertificateAuthorities().GetCertificateAsync(ca.Id)).Certificate));
       Assert.NotEmpty((await _client.Certificates().SearchAsync(new SearchCertificatesOptions { ProjectId = project.Id })).Certificates);
 
       await _client.Certificates().RevokeAsync(certificateId, CertificateRevocationReasons.KeyCompromise);
@@ -267,5 +285,33 @@ public class LiveTests
     await _client.Organizations().ListMembershipsAsync(Live.OrgId!);
     await _client.Organizations().ListAuditLogsAsync(new AuditLogsQuery { Limit = 5 });
     await _client.KmipServers().ListAsync();
+  }
+
+  [LiveUserFact]
+  public async Task User_login_unlocks_the_endpoints_that_reject_machine_identities()
+  {
+    var client = Live.NewClient(false);
+    var login = await client.Auth().UserAuth().LoginAsync(Live.UserEmail!, Live.UserPassword!, Live.OrgId);
+    Assert.Equal(Live.OrgId, login.OrganizationId);
+
+    Assert.Contains(await client.Organizations().ListAsync(), o => o.Id == Live.OrgId);
+    Assert.Equal(Live.OrgId, (await client.Organizations().GetAsync(Live.OrgId!)).Id);
+
+    // creating SCIM tokens needs an Enterprise license, but reading them only needs a user login
+    await client.Organizations().Scim().ListTokensAsync(Live.OrgId!);
+
+    var project = await client.Projects().CreateAsync(new CreateProjectOptions { ProjectName = $"sdk-views-{_suffix}", Type = "cert-manager" });
+    try
+    {
+      client.SetCertManagerProject(project.Id);
+      var view = await client.CertificateInventory().CreateViewAsync(new CertificateInventoryViewOptions { ProjectId = project.Id, Name = "sdk-view", Filters = new CertificateInventoryFilters { Status = "active" }, Columns = new[] { CertificateInventoryColumns.SanCn } });
+      var views = await client.CertificateInventory().ListViewsAsync(project.Id);
+      Assert.Contains(views.CustomViews.Concat(views.SharedViews), v => v.Id == view.Id);
+      await client.CertificateInventory().DeleteViewAsync(view.Id);
+    }
+    finally
+    {
+      await client.Projects().DeleteAsync(project.Id);
+    }
   }
 }
