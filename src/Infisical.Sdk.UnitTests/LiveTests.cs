@@ -240,6 +240,9 @@ public class LiveTests
 
       Assert.Equal(certificateId, (await _client.Certificates().GetAsync(certificateId)).Id);
       Assert.False(string.IsNullOrEmpty((await _client.Certificates().GetBundleAsync(certificateId)).PrivateKey));
+      Assert.StartsWith("-----BEGIN", (await _client.Certificates().GetPrivateKeyAsync(certificateId)).PrivateKey);
+      Assert.NotEmpty(await _client.Certificates().ExportPkcs12Async(certificateId, "Passw0rd-123456!", "svc"));
+      Assert.False(string.IsNullOrEmpty((await _client.CertificateAuthorities().GetCertificateAsync(ca.Id)).Certificate));
       Assert.NotEmpty((await _client.Certificates().SearchAsync(new SearchCertificatesOptions { ProjectId = project.Id })).Certificates);
 
       await _client.Certificates().RevokeAsync(certificateId, CertificateRevocationReasons.KeyCompromise);

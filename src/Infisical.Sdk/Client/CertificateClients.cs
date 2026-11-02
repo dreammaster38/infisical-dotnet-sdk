@@ -77,12 +77,14 @@ public class CertificatesClient
     }
   }
 
+  /// <summary>Gets the PEM encoded private key of the certificate (in <see cref="CertificateMaterial.PrivateKey"/>).</summary>
   public async Task<CertificateMaterial> GetPrivateKeyAsync(string certificateId)
   {
     try
     {
-      var response = await _apiClient.SendRequiredAsync<JsonElement>(HttpMethod.Get, Path(certificateId) + "/private-key", null, null, true).ConfigureAwait(false);
-      return ResponseReader.Deserialize<CertificateMaterial>(response) ?? new CertificateMaterial();
+      // this endpoint answers with the plain PEM text, not with JSON
+      var pem = await _apiClient.SendForTextAsync(HttpMethod.Get, Path(certificateId) + "/private-key", null, null, true).ConfigureAwait(false);
+      return new CertificateMaterial { PrivateKey = pem, CertificateId = certificateId };
     }
     catch (Exception e)
     {
@@ -90,12 +92,12 @@ public class CertificatesClient
     }
   }
 
-  /// <summary>Exports the certificate as a PKCS#12 keystore (raw response, contains the base64 encoded keystore).</summary>
-  public async Task<JsonElement> ExportPkcs12Async(string certificateId, string password, string alias)
+  /// <summary>Exports the certificate as a PKCS#12 keystore (binary, e.g. to be saved as a .p12 file).</summary>
+  public async Task<byte[]> ExportPkcs12Async(string certificateId, string password, string alias)
   {
     try
     {
-      return await _apiClient.SendRequiredAsync<JsonElement>(HttpMethod.Post, Path(certificateId) + "/pkcs12", new { password, alias }).ConfigureAwait(false);
+      return await _apiClient.SendForBytesAsync(HttpMethod.Post, Path(certificateId) + "/pkcs12", new { password, alias }).ConfigureAwait(false);
     }
     catch (Exception e)
     {
@@ -582,6 +584,20 @@ public class CertificateAuthoritiesClient
     catch (Exception e)
     {
       throw new InfisicalException("Failed to get CA certificates", e);
+    }
+  }
+
+  /// <summary>Downloads a CA certificate in DER format.</summary>
+  public async Task<byte[]> GetCaCertificateDerAsync(string caId, string caCertId)
+  {
+    try
+    {
+      if (string.IsNullOrEmpty(caCertId)) throw new InfisicalException("CaCertId is required");
+      return await _apiClient.SendForBytesAsync(HttpMethod.Get, $"{Path(caId)}/certificates/{Uri.EscapeDataString(caCertId)}/der", null, null, true).ConfigureAwait(false);
+    }
+    catch (Exception e)
+    {
+      throw new InfisicalException("Failed to download CA certificate", e);
     }
   }
 

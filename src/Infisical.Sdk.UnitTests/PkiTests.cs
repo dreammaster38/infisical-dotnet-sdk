@@ -234,4 +234,39 @@ public class PkiTests
 
     Assert.Null(h.Last.Query["projectId"]);
   }
+
+  [Fact]
+  public async Task Certificate_private_key_is_read_from_a_plain_text_response()
+  {
+    using var h = new Harness();
+    h.On("GET", "/api/v1/cert-manager/certificates/c1/private-key", "-----BEGIN PRIVATE KEY-----\nABC\n-----END PRIVATE KEY-----\n");
+
+    var material = await h.Client.Certificates().GetPrivateKeyAsync("c1");
+
+    Assert.StartsWith("-----BEGIN PRIVATE KEY-----", material.PrivateKey);
+  }
+
+  [Fact]
+  public async Task Pkcs12_export_returns_the_binary_response()
+  {
+    using var h = new Harness();
+    h.On("POST", "/api/v1/cert-manager/certificates/c1/pkcs12", "P12DATA");
+
+    var bytes = await h.Client.Certificates().ExportPkcs12Async("c1", "pw", "alias");
+
+    Assert.Equal("P12DATA", System.Text.Encoding.UTF8.GetString(bytes));
+    Assert.Equal("alias", h.Last.Json.GetProperty("alias").GetString());
+  }
+
+  [Fact]
+  public async Task Signer_certificate_maps_certificatePem()
+  {
+    using var h = new Harness();
+    h.On("GET", "/api/v1/cert-manager/signers/sg1/certificate", "{\"certificatePem\":\"PEM\",\"serialNumber\":\"0a\",\"signerName\":\"s\"}");
+
+    var certificate = await h.Client.Signers().GetCertificateAsync("sg1");
+
+    Assert.Equal("PEM", certificate.Certificate);
+    Assert.Equal("0a", certificate.SerialNumber);
+  }
 }
