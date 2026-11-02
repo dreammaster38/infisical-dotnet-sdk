@@ -6,9 +6,23 @@ using System.Text.Json.Serialization;
 // Certificates (Certificate Manager)
 // ---------------------------------------------------------------------------------------------
 
+/// <summary>Reasons for revoking a certificate.</summary>
+public static class CertificateRevocationReasons
+{
+  public const string Unspecified = "UNSPECIFIED";
+  public const string KeyCompromise = "KEY_COMPROMISE";
+  public const string CaCompromise = "CA_COMPROMISE";
+  public const string AffiliationChanged = "AFFILIATION_CHANGED";
+  public const string Superseded = "SUPERSEDED";
+  public const string CessationOfOperation = "CESSATION_OF_OPERATION";
+  public const string CertificateHold = "CERTIFICATE_HOLD";
+  public const string PrivilegeWithdrawn = "PRIVILEGE_WITHDRAWN";
+  public const string AaCompromise = "A_A_COMPROMISE";
+}
+
 public class SubjectAlternativeName
 {
-  /// <summary>"dns_name", "ip_address", "email" or "uri".</summary>
+  /// <summary>"dns_name", "ip_address", "email", "uri" or "upn".</summary>
   [JsonPropertyName("type")]
   public string Type { get; init; } = string.Empty;
 
@@ -233,7 +247,7 @@ public class RenewCertificateOptions
   [JsonPropertyName("removeRootsFromChain")]
   public bool? RemoveRootsFromChain { get; init; }
 
-  /// <summary>"existing" or "new".</summary>
+  /// <summary>"new", "reuse" or "csr".</summary>
   [JsonPropertyName("renewalKeySource")]
   public string? RenewalKeySource { get; init; }
 
