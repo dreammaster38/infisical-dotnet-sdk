@@ -8,6 +8,9 @@
     <LangVersion>10.0</LangVersion>
 
 
+    <!-- Fallback for local builds. The release workflow overrides it with the git tag (-p:Version=<tag>). -->
+    <Version>4.0.0</Version>
+
     <Title>Infisical SDK</Title>
     <Authors>Infisical</Authors>
     <Description>.NET SDK for Infisical</Description>

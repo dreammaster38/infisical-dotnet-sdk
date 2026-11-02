@@ -31,6 +31,8 @@ If you’re working with .NET, the official Infisical .NET SDK package is the ea
 ## Documentation
 You can find the documentation for the .NET SDK on our [SDK documentation page](https://infisical.com/docs/sdks/languages/dotnet).
 
+The changes of each release are listed in the [changelog](CHANGELOG.md).
+
 ## Supported APIs
 
 Besides secrets and PKI subscribers, the SDK covers the following areas of the Infisical API. All clients are reachable from `InfisicalClient`:
