@@ -22,7 +22,7 @@ internal sealed record Recorded(string Method, string Path, string RawQuery, str
 /// </summary>
 internal sealed class Harness : IDisposable
 {
-  private readonly HttpListener _listener = new HttpListener();
+  private readonly HttpListener _listener;
   private readonly Dictionary<string, (int Status, string Body)> _responses = new Dictionary<string, (int, string)>();
   private readonly object _lock = new object();
 
@@ -32,15 +32,33 @@ internal sealed class Harness : IDisposable
 
   public Harness()
   {
-    int port;
-    var probe = new TcpListener(IPAddress.Loopback, 0);
-    probe.Start();
-    port = ((IPEndPoint)probe.LocalEndpoint).Port;
-    probe.Stop();
+    // Finding a free port and binding it are two steps, and xUnit runs test classes in parallel: another harness can
+    // take the port in between. Then binding fails and the next free port is tried.
+    HttpListener? listener = null;
+    var baseUrl = string.Empty;
+    for (var attempt = 0; attempt < 50 && listener == null; attempt++)
+    {
+      var probe = new TcpListener(IPAddress.Loopback, 0);
+      probe.Start();
+      var port = ((IPEndPoint)probe.LocalEndpoint).Port;
+      probe.Stop();
 
-    BaseUrl = $"http://localhost:{port}";
-    _listener.Prefixes.Add(BaseUrl + "/");
-    _listener.Start();
+      var candidate = new HttpListener();
+      candidate.Prefixes.Add($"http://localhost:{port}/");
+      try
+      {
+        candidate.Start();
+        listener = candidate;
+        baseUrl = $"http://localhost:{port}";
+      }
+      catch (HttpListenerException)
+      {
+        candidate.Close();
+      }
+    }
+
+    _listener = listener ?? throw new InvalidOperationException("could not find a free port for the fake server");
+    BaseUrl = baseUrl;
     _ = Task.Run(Loop);
 
     Client = new InfisicalClient(new InfisicalSdkSettingsBuilder().WithHostUri(BaseUrl).Build());

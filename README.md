@@ -176,8 +176,9 @@ export INFISICAL_LIVE_USER_PASSWORD=<password>
 dotnet test src/Infisical.Sdk.UnitTests --filter Category=Live
 ```
 
-A fresh instance can be bootstrapped with `client.Instance().BootstrapAsync(...)`, which returns such a token and the
-organization id. Features that need an Enterprise license (groups, custom roles, project templates, gateway pools,
+`test-instance/run-live-tests.sh` starts a throw-away instance with Docker, bootstraps it and runs the live tests (see
+[test-instance/README.md](test-instance/README.md)). A fresh instance can also be bootstrapped with
+`client.Instance().BootstrapAsync(...)`, which returns such a token and the organization id. Features that need an Enterprise license (groups, custom roles, project templates, gateway pools,
 secret rotations, secret scanning) are not covered by the live tests.
 
 > **Note:** a few endpoints only accept a user login and reject machine identity tokens with `403`, e.g. listing or
