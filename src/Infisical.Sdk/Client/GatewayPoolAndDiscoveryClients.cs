@@ -308,6 +308,8 @@ public class PkiDiscoveryClient
     }
   }
 
+  /// <param name="installationId">ID of the installation.</param>
+  /// <param name="name">New name, or null to leave it unchanged.</param>
   /// <param name="keystorePassword">Password of the keystore on the target, or null to leave it unchanged.</param>
   public async Task<PkiInstallation> UpdateInstallationAsync(string installationId, string? name = null, string? keystorePassword = null)
   {

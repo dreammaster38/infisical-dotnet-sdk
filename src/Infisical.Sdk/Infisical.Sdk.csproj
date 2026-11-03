@@ -28,6 +28,21 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- XML documentation: the /// comments show up as IntelliSense for the users of the package -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- many model properties are self-explanatory, a missing comment is not a warning (CS1591) -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+    <!-- Source Link (built into the .NET 8 SDK): lets debuggers step into the SDK sources on GitHub -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <!-- symbols are embedded in the assembly, so the package needs no separate symbol package -->
+    <DebugType>embedded</DebugType>
+    <!-- reproducible builds on GitHub Actions: no machine specific paths in the assemblies -->
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />

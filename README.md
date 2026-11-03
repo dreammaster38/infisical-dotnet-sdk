@@ -153,6 +153,32 @@ Console.WriteLine(cert.Material?.Certificate);
 var auditLogs = await client.Raw().GetAsync("/api/v1/organization/audit-logs", new Dictionary<string, string> { ["limit"] = "20" });
 ```
 
+See the [guide for authentication and error handling](docs/authentication-and-errors.md) for all login methods,
+user-only endpoints, `SetCertManagerProject` and the exceptions you get. A runnable sample is in
+[src/Infisical.Sdk.Test](src/Infisical.Sdk.Test/Program.cs).
+
+### Short examples
+
+```csharp
+// KMS: encrypt (base64 plaintext in, ciphertext out)
+var ciphertext = await client.Kms().EncryptAsync(keyId, Convert.ToBase64String(Encoding.UTF8.GetBytes("hello")));
+
+// dynamic secret lease
+var lease = await client.DynamicSecrets().CreateLeaseAsync(new CreateDynamicSecretLeaseOptions
+{
+  DynamicSecretName = "postgres",
+  ProjectSlug = "my-project",
+  EnvironmentSlug = "dev",
+  Ttl = "30m"
+});
+
+// groups
+var group = await client.Groups().CreateAsync(new CreateGroupOptions { Name = "developers", Slug = "developers" });
+
+// one-time shared secret
+var shared = await client.SharedSecrets().CreateAsync(new CreateSharedSecretOptions { SecretValue = "s3cret", ExpiresIn = "1d", MaxViews = 1 });
+```
+
 Response models expose the most important fields as properties; everything else the API returns is available through `AdditionalData`.
 
 ## Tests

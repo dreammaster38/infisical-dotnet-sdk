@@ -167,6 +167,8 @@ public class UserAuth
     _setAccessTokenFunc = setAccessTokenFunc;
   }
 
+  /// <param name="email">Email address of the user.</param>
+  /// <param name="password">Password of the user.</param>
   /// <param name="organizationId">Organization to scope the token to. Required for most endpoints.</param>
   public async Task<UserLoginResult> LoginAsync(string email, string password, string? organizationId = null)
   {

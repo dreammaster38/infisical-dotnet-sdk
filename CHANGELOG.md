@@ -61,6 +61,11 @@ version because of the breaking change below.
 - The new clients read JSON leniently: a number or boolean is accepted for a text field and a numeric string for a
   number field.
 
+- The package now ships IntelliSense documentation (XML comments), Source Link information and embedded symbols, and
+  CI builds are deterministic.
+- Documentation: a guide for authentication and error handling (`docs/authentication-and-errors.md`), more examples
+  in the README, and the sample project `src/Infisical.Sdk.Test` uses the new clients.
+
 ### Notes
 
 - Endpoints that need an Enterprise license (e.g. groups, custom roles, project templates, gateway pools, secret

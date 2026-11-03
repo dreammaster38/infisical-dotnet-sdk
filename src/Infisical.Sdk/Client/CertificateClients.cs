@@ -146,6 +146,7 @@ public class CertificatesClient
     }
   }
 
+  /// <param name="certificateId">ID of the certificate.</param>
   /// <param name="revocationReason">One of <see cref="CertificateRevocationReasons"/>, e.g. "KEY_COMPROMISE".</param>
   public async Task<JsonElement> RevokeAsync(string certificateId, string revocationReason = CertificateRevocationReasons.Unspecified)
   {

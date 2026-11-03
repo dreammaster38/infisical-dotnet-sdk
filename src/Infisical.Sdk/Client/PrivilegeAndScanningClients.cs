@@ -424,6 +424,7 @@ public class SecretScanningClient
     }
   }
 
+  /// <param name="projectId">Project the configuration belongs to.</param>
   /// <param name="content">The config file content, or null to reset it.</param>
   public async Task<JsonElement> UpdateConfigAsync(string? content, string? projectId = null)
   {
