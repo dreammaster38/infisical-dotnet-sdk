@@ -417,6 +417,7 @@ public class SignersClient
   }
 
   /// <summary>Imports an externally issued certificate whose key lives in an HSM.</summary>
+  /// <param name="signerId">ID of the signer.</param>
   /// <param name="body">Request body (caId, externalOrderId, certificate, certificateRenewBeforeDays), see the API reference.</param>
   public async Task<JsonElement> ImportCertificateAsync(string signerId, object body)
   {

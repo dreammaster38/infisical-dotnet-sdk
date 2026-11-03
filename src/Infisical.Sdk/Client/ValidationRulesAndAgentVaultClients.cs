@@ -223,6 +223,8 @@ public class AgentVaultAccessBundles
   public Task<JsonElement> DeleteServiceAsync(string accessBundleId, string serviceId)
     => AgentVaultClient.Call(_api, HttpMethod.Delete, $"/access-bundles/{AgentVaultClient.Id(accessBundleId, "AccessBundleId")}/services/{AgentVaultClient.Id(serviceId, "ServiceId")}", null, null, "Failed to delete service");
 
+  /// <param name="accessBundleId">ID of the access bundle.</param>
+  /// <param name="serviceId">ID of the service.</param>
   /// <param name="values">Objects like <c>new { field = AgentVaultPersonalValueFields.CredentialValue, value = "..." }</c>.</param>
   /// <param name="credentialType">See <see cref="AgentVaultCredentialTypes"/>.</param>
   public Task<JsonElement> SetPersonalValuesAsync(string accessBundleId, string serviceId, object[] values, string? credentialType = null)

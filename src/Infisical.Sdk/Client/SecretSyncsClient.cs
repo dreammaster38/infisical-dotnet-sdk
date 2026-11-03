@@ -132,6 +132,8 @@ public class SecretSyncsClient
     }
   }
 
+  /// <param name="destination">One of <see cref="SecretSyncDestinations"/>.</param>
+  /// <param name="syncId">ID of the sync.</param>
   /// <param name="removeSecrets">Also remove the synced secrets from the destination.</param>
   public async Task<SecretSyncInfo> DeleteAsync(string destination, string syncId, bool removeSecrets = false)
   {

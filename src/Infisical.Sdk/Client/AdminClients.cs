@@ -16,6 +16,8 @@ public class ScimClient
   }
 
   /// <summary>Creates a SCIM token and returns it. The token is only shown once.</summary>
+  /// <param name="organizationId">The organization the token belongs to.</param>
+  /// <param name="description">Free text to recognize the token.</param>
   /// <param name="ttlDays">Lifetime in days (max. 730), 0 means the token never expires.</param>
   public async Task<string> CreateTokenAsync(string organizationId, string? description = null, int ttlDays = 0)
   {
